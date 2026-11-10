@@ -4,32 +4,50 @@ Pilot Phil 的个人主页。结构很简单：姓名 + GitHub，下面四个 ta
 
 **在线：<https://pilotphil.github.io/>**
 
-## 结构
+## 目录结构
+
+一个 tab 对应一个顶层目录，每个作品再单独建子目录。这样内容多了也不会混在一起。
 
 ```text
 .
-├── index.html                     # 主页：四个 tab + 内容卡片
+├── index.html                         # 主页：四个 tab + 内容卡片
 ├── 404.html
-├── assets/
-│   ├── css/main.css               # 全部样式
-│   ├── js/main.js                 # tab 切换
+├── assets/                            # 站点级资源（主页共用）
+│   ├── css/main.css
+│   ├── js/main.js
 │   └── img/favicon.svg
-├── projects/
-│   └── ice-failure/index.html     # 海冰三轴失效准则演示
+├── ice-mechanics/                     # 冰力学
+│   ├── README.md
+│   └── ice-failure/                   # 海冰三轴失效准则演示
+│       ├── index.html
+│       └── README.md
+├── load-forecast/                     # 冰载荷预报（施工中）
+│   └── README.md
+├── dsh-plugin/                        # DSH Plugin（外部仓库汇总）
+│   └── README.md
+├── agent/                             # Agent（施工中）
+│   └── README.md
 ├── robots.txt
 ├── sitemap.xml
 ├── THIRD-PARTY-NOTICES.md
 └── .nojekyll
 ```
 
-## 修改内容
+约定：
 
-所有内容都在 `index.html` 里。
+- 每个新作品放在对应分类目录下的独立子目录里，自带 `README.md`
+- 作品自己的图片、数据、脚本放在它自己的子目录，不要丢进 `assets/`
+- `assets/` 只放主页共用的 CSS、JS、图标
+- DSH 的三个插件目前都在独立 GitHub 仓库维护，主页直接外链；`dsh-plugin/` 用来汇总链接和以后的说明页
+
+## 修改主页
+
+所有文字都在 `index.html` 里。
 
 - **名字**：搜索 `Pilot Phil`，会出现在页头、`<title>` 和页脚
 - **GitHub 链接**：搜索 `https://github.com/PilotPhil`，页头一处
 - **Tab**：`.tabs` 里的四个 `<button>`，对应下面四个 `[data-panel]` 区块
-- **冰力学**：目前只有一张卡片，链接到 `/projects/ice-failure/`
+- **冰力学**：目前只有一张卡片，链接到 `/ice-mechanics/ice-failure/`
 - **DSH Plugin**：三张卡片，分别链接到三个 GitHub 仓库
 - **冰载荷预报 / Agent**：目前是 `施工中`，以后把 `.empty` 换成 `.card-grid` 即可
 
@@ -55,7 +73,7 @@ git push origin main
 
 ## 演示页
 
-海冰三轴失效准则演示在 `projects/ice-failure/`，为单文件、无外部依赖的页面，可离线打开。
+海冰三轴失效准则演示在 `ice-mechanics/ice-failure/`，为单文件、无外部依赖的页面，可离线打开。
 失效包络图、判定逻辑和样式均保持原样，只在顶栏加了返回主页的链接。
 
 三维部分使用 three.js r152（MIT），许可见 `THIRD-PARTY-NOTICES.md`。

@@ -3,7 +3,7 @@
 《冰力学》课程作业二：四种海冰失效准则（第一强度理论、Mises、Mohr–Coulomb、Tsai–Wu）
 在二维 σ₁–σ₂ 平面与三维主应力空间中的交互演示。
 
-**在线体验：<https://pilotphil.github.io/projects/ice-failure/>**
+**在线体验：<https://pilotphil.github.io/ice-mechanics/ice-failure/>**
 
 - 顶部开关切换二维（σ₃ = 0）/ 三维（σ₃ 可调），二维包络线即三维失效面在 σ₃ 平面上的切片
 - 输入条件可调 σt、σc，四种准则的系数、包络线、三维失效面与判定实时重新标定
