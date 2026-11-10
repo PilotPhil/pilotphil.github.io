@@ -1,68 +1,61 @@
 # pilotphil.github.io
 
-个人主页 · 工程与技术作品集。纯静态、零构建，直接由 GitHub Pages 托管。
+Pilot Phil 的个人主页。结构很简单：姓名 + GitHub，下面四个 tab。
 
-**在线访问：<https://pilotphil.github.io/>**
+**在线：<https://pilotphil.github.io/>**
 
-## 站点结构
+## 结构
 
 ```text
 .
-├── index.html                     # 主页（关于 / 项目 / 方向 / 笔记 / 联系）
-├── 404.html                       # 404 页面
+├── index.html                     # 主页：四个 tab + 内容卡片
+├── 404.html
 ├── assets/
-│   ├── css/main.css               # 全站样式与设计变量
-│   ├── js/main.js                 # 导航、滚动显示、复制邮箱
-│   └── img/                       # favicon、社交分享图、项目截图
+│   ├── css/main.css               # 全部样式
+│   ├── js/main.js                 # tab 切换
+│   └── img/favicon.svg
 ├── projects/
-│   └── ice-failure/index.html     # 海冰三轴失效准则交互演示（原首页）
+│   └── ice-failure/index.html     # 海冰三轴失效准则演示
 ├── robots.txt
 ├── sitemap.xml
-├── CONTENT.md                     # 内容替换指南
-├── THIRD-PARTY-NOTICES.md         # three.js 许可
-└── .nojekyll                      # 关闭 Jekyll 处理
+├── THIRD-PARTY-NOTICES.md
+└── .nojekyll
 ```
 
-## 本地预览
+## 修改内容
 
-在仓库根目录执行：
+所有内容都在 `index.html` 里。
+
+- **名字**：搜索 `Pilot Phil`，会出现在页头、`<title>` 和页脚
+- **GitHub 链接**：搜索 `https://github.com/PilotPhil`，页头一处
+- **Tab**：`.tabs` 里的四个 `<button>`，对应下面四个 `[data-panel]` 区块
+- **冰力学**：目前只有一张卡片，链接到 `/projects/ice-failure/`
+- **DSH Plugin**：三张卡片，分别链接到三个 GitHub 仓库
+- **冰载荷预报 / Agent**：目前是 `施工中`，以后把 `.empty` 换成 `.card-grid` 即可
+
+新增一张卡片最简单的方法：复制任意一个 `<a class="card">...</a>`，改标题、说明、链接和仓库名。
+
+## 本地预览
 
 ```bash
 python3 -m http.server 8000
 ```
 
-然后打开 <http://localhost:8000/>。
-
-主页使用根路径引用资源（`/assets/...`），请通过本地服务器访问，不要直接双击 `index.html`。
+打开 <http://localhost:8000/>。主页使用根路径 `/assets/...`，请通过本地服务器访问，不要直接双击 HTML。
 
 ## 部署
 
-仓库 `main` 分支根目录即站点根目录，推送后 GitHub Pages 会自动发布，通常 1–2 分钟内生效：
+`main` 分支根目录就是站点根目录，推送后 GitHub Pages 会自动发布：
 
 ```bash
 git add .
-git commit -m "Build personal homepage"
+git commit -m "Update homepage"
 git push origin main
 ```
 
-## 设计说明
+## 演示页
 
-- 暖白纸感底色、墨色正文、深蓝强调，加一点锈橙作为信号色
-- 宋体标题 / 苹方正文 / 等宽字体标签，形成学术图版的气质
-- 无框架、无外部字体、无追踪脚本、无 Cookie，首屏不依赖网络字体
-- 响应式布局，支持键盘导航与 `prefers-reduced-motion`
-- 所有个人信息、项目状态与笔记均为可替换的占位内容，见 [CONTENT.md](CONTENT.md)
+海冰三轴失效准则演示在 `projects/ice-failure/`，为单文件、无外部依赖的页面，可离线打开。
+失效包络图、判定逻辑和样式均保持原样，只在顶栏加了返回主页的链接。
 
-## 交互演示
-
-《冰力学》课程作业：四种海冰失效准则（第一强度理论、Mises、Mohr–Coulomb、Tsai–Wu）
-在二维 σ₁–σ₂ 平面与三维主应力空间中的交互演示。
-
-**在线体验：<https://pilotphil.github.io/projects/ice-failure/>**
-
-演示页为单文件、无外部依赖，可离线双击打开；三维部分使用 three.js r152。
-详见 [projects/ice-failure/README.md](projects/ice-failure/README.md)。
-
-## 第三方组件
-
-three.js r152（MIT 许可），许可见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+三维部分使用 three.js r152（MIT），许可见 `THIRD-PARTY-NOTICES.md`。

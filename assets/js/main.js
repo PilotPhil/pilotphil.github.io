@@ -1,207 +1,75 @@
 /* ==========================================================================
-   Pilot Phil — small, dependency-free interactions**
+   Tab switching for the homepage. No dependencies.
    ========================================================================== */
 
 (function () {
   'use strict';
 
-  var header = document.getElementById('siteHeader');
-  var menuToggle = document.getElementById('menuToggle');
-  var mobileNav = document.getElementById('mobileNav');
-  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var menuOpen = false;
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  var panels = Array.prototype.slice.call(document.querySelectorAll('[role="tabpanel"]'));
+  if (!tabs.length) return;
 
-  /* ---------------------------------------------------------- mobile menu */
-  function setMenu(open, restoreFocus) {
-    menuOpen = open;
-    menuToggle.setAttribute('aria-expanded', String(open));
-    menuToggle.setAttribute('aria-label', open ? '关闭菜单' : '打开菜单');
-    mobileNav.classList.toggle('is-open', open);
-    header.classList.toggle('is-open', open);
-    if (!open && restoreFocus) menuToggle.focus();
-  }
+  var valid = {};
+  tabs.forEach(function (tab) {
+    valid[tab.getAttribute('data-tab')] = true;
+  });
 
-  if (menuToggle && mobileNav) {
-    menuToggle.addEventListener('click', function () {
-      setMenu(!menuOpen, false);
+  function activate(name, options) {
+    options = options || {};
+
+    tabs.forEach(function (tab) {
+      var on = tab.getAttribute('data-tab') === name;
+      tab.classList.toggle('is-active', on);
+      tab.setAttribute('aria-selected', on ? 'true' : 'false');
+      tab.tabIndex = on ? 0 : -1;
     });
 
-    mobileNav.addEventListener('click', function (event) {
-      if (event.target.closest('a')) setMenu(false, false);
+    panels.forEach(function (panel) {
+      panel.hidden = panel.getAttribute('data-panel') !== name;
     });
 
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && menuOpen) setMenu(false, true);
-    });
-
-    document.addEventListener('click', function (event) {
-      if (menuOpen && !header.contains(event.target)) setMenu(false, false);
-    });
-
-    var desktop = window.matchMedia('(min-width: 881px)');
-    var onDesktop = function (event) {
-      if (event.matches) setMenu(false, false);
-    };
-    if (desktop.addEventListener) desktop.addEventListener('change', onDesktop);
-    else if (desktop.addListener) desktop.addListener(onDesktop);
-  }
-
-  /* ------------------------------------------------------- header / nav */
-  var navLinks = Array.prototype.slice.call(
-    document.querySelectorAll('.nav a[href^="#"]')
-  );
-  var sections = navLinks
-    .map(function (link) {
-      return document.querySelector(link.getAttribute('href'));
-    })
-    .filter(Boolean);
-
-  function setActiveSection() {
-    if (!sections.length) return;
-
-    var probe = window.scrollY + 160;
-    var current = null;
-
-    sections.forEach(function (section) {
-      if (section.offsetTop <= probe) current = section;
-    });
-
-    if (
-      window.innerHeight + window.scrollY >=
-      document.documentElement.scrollHeight - 40
-    ) {
-      current = sections[sections.length - 1];
+    if (options.updateHash !== false && window.history.replaceState) {
+      window.history.replaceState(null, '', '#' + name);
     }
 
-    navLinks.forEach(function (link) {
-      link.removeAttribute('aria-current');
-    });
-
-    if (current) {
-      var active = navLinks.find(function (link) {
-        return link.getAttribute('href') === '#' + current.id;
-      });
-      if (active) active.setAttribute('aria-current', 'true');
-    }
-  }
-
-  var ticking = false;
-  function onScroll() {
-    header.classList.toggle('is-scrolled', window.scrollY > 8);
-
-    if (!ticking) {
-      ticking = true;
-      window.requestAnimationFrame(function () {
-        setActiveSection();
-        ticking = false;
+    if (options.focus) {
+      tabs.some(function (tab) {
+        if (tab.getAttribute('data-tab') === name) {
+          tab.focus();
+          return true;
+        }
+        return false;
       });
     }
   }
 
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll, { passive: true });
-  onScroll();
-
-  /* ------------------------------------------------------------- reveal */
-  var revealItems = Array.prototype.slice.call(
-    document.querySelectorAll('[data-reveal]')
-  );
-
-  if ('IntersectionObserver' in window && !reduceMotion.matches) {
-    revealItems.forEach(function (item) {
-      item.classList.add('will-reveal');
+  tabs.forEach(function (tab, index) {
+    tab.addEventListener('click', function () {
+      activate(tab.getAttribute('data-tab'));
     });
 
-    var revealObserver = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            revealObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -6% 0px' }
-    );
+    tab.addEventListener('keydown', function (event) {
+      var next = null;
 
-    revealItems.forEach(function (item) {
-      revealObserver.observe(item);
-    });
-  } else {
-    revealItems.forEach(function (item) {
-      item.classList.add('is-visible');
-    });
-  }
+      if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+      else if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = tabs.length - 1;
 
-  if (reduceMotion.addEventListener) {
-    reduceMotion.addEventListener('change', function (event) {
-      if (event.matches) {
-        revealItems.forEach(function (item) {
-          item.classList.add('is-visible');
-        });
+      if (next !== null) {
+        event.preventDefault();
+        activate(tabs[next].getAttribute('data-tab'), { focus: true });
       }
     });
-  }
+  });
 
-  /* ---------------------------------------------------------- copy email */
-  var toast = document.getElementById('toast');
-  var toastTimer = null;
+  var initial = window.location.hash.replace('#', '');
+  activate(valid[initial] ? initial : tabs[0].getAttribute('data-tab'), {
+    updateHash: false
+  });
 
-  function showToast(message) {
-    if (!toast) return;
-    toast.textContent = message;
-    toast.classList.add('is-visible');
-    window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(function () {
-      toast.classList.remove('is-visible');
-    }, 1800);
-  }
-
-  function legacyCopy(text) {
-    var field = document.createElement('textarea');
-    field.value = text;
-    field.setAttribute('readonly', '');
-    field.style.position = 'fixed';
-    field.style.opacity = '0';
-    document.body.appendChild(field);
-    field.select();
-    try {
-      document.execCommand('copy');
-      showToast('邮箱已复制');
-    } catch (error) {
-      showToast('复制失败，请手动选择邮箱');
-    }
-    document.body.removeChild(field);
-  }
-
-  Array.prototype.forEach.call(
-    document.querySelectorAll('[data-copy]'),
-    function (button) {
-      button.addEventListener('click', function () {
-        var text = button.getAttribute('data-copy');
-        if (!text) return;
-
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(
-            function () {
-              showToast('邮箱已复制');
-            },
-            function () {
-              legacyCopy(text);
-            }
-          );
-        } else {
-          legacyCopy(text);
-        }
-      });
-    }
-  );
-
-  /* ------------------------------------------------------------ colophon */
-  Array.prototype.forEach.call(
-    document.querySelectorAll('[data-year]'),
-    function (node) {
-      node.textContent = String(new Date().getFullYear());
-    }
-  );
+  window.addEventListener('hashchange', function () {
+    var name = window.location.hash.replace('#', '');
+    if (valid[name]) activate(name, { updateHash: false });
+  });
 })();

@@ -3,556 +3,121 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pilot Phil · 工程力学 / 计算动力学 / 智能体工程</title>
-  <meta name="description" content="Pilot Phil 的个人主页：冰力学与失效准则、结构动力学与数值仿真，以及 DSH Plugin 与 Agent 工具的工程实践。">
-  <meta name="author" content="Pilot Phil">
+  <title>Pilot Phil</title>
+  <meta name="description" content="Pilot Phil 的个人主页：冰力学、冰载荷预报、DSH Plugin 与 Agent。">
   <meta name="theme-color" content="#f6f4ee">
   <link rel="canonical" href="https://pilotphil.github.io/">
-
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Pilot Phil">
-  <meta property="og:title" content="Pilot Phil · 工程力学 / 计算动力学 / 智能体工程">
-  <meta property="og:description" content="冰力学与失效准则、结构动力学与数值仿真，以及 DSH Plugin 与 Agent 工具的工程实践。">
-  <meta property="og:url" content="https://pilotphil.github.io/">
-  <meta property="og:image" content="https://pilotphil.github.io/assets/img/og.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Pilot Phil — 工程力学 / 计算动力学 / 智能体工程">
-  <meta property="og:locale" content="zh_CN">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Pilot Phil · 工程力学 / 计算动力学 / 智能体工程">
-  <meta name="twitter:description" content="冰力学与失效准则、结构动力学与数值仿真，以及 DSH Plugin 与 Agent 工具的工程实践。">
-  <meta name="twitter:image" content="https://pilotphil.github.io/assets/img/og.png">
-  <meta name="twitter:image:alt" content="Pilot Phil — 工程力学 / 计算动力学 / 智能体工程">
-
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
   <link rel="stylesheet" href="/assets/css/main.css">
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    "name": "Pilot Phil",
-    "url": "https://pilotphil.github.io/",
-    "jobTitle": "Engineering & Computational Mechanics",
-    "description": "工程力学、计算动力学与智能体工具实践者。",
-    "sameAs": ["https://github.com/PilotPhil"]
-  }
-  </script>
 </head>
 <body>
-  <a class="skip-link" href="#main">跳到主要内容</a>
-
-  <header class="site-header" id="siteHeader">
-    <div class="header-inner">
-      <a class="brand" href="/" aria-label="Pilot Phil 首页">
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="/">
         <span class="brand-mark" aria-hidden="true">
           <svg viewBox="0 0 20 20" fill="none">
             <path d="M6 16V4h4.6c2.7 0 4.4 1.5 4.4 3.9s-1.7 3.9-4.4 3.9H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/>
           </svg>
         </span>
-        <span class="brand-name">Pilot Phil</span>
+        <h1 class="brand-name">Pilot Phil</h1>
       </a>
 
-      <nav class="nav" aria-label="主导航">
-        <a href="#work">项目</a>
-        <a href="#focus">方向</a>
-        <a href="#about">关于</a>
-        <a href="#notes">笔记</a>
-        <a href="#contact">联系</a>
-      </nav>
-
-      <div class="header-actions">
-        <a class="header-github" href="https://github.com/PilotPhil" target="_blank" rel="noopener">
-          GitHub
-          <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <path d="M3.5 10.5 10.5 3.5M5 3.5h5.5V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
-        <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="打开菜单">
-          <span></span><span></span>
-        </button>
-      </div>
+      <a class="github" href="https://github.com/PilotPhil" target="_blank" rel="noopener">
+        GitHub
+        <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M3.5 10.5 10.5 3.5M5 3.5h5.5V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
     </div>
-
-    <nav class="mobile-nav" id="mobileNav" aria-label="移动端导航">
-      <a href="#work">项目 <span>01</span></a>
-      <a href="#focus">方向 <span>02</span></a>
-      <a href="#about">关于 <span>03</span></a>
-      <a href="#notes">笔记 <span>04</span></a>
-      <a href="#contact">联系 <span>05</span></a>
-      <a class="mobile-github" href="https://github.com/PilotPhil" target="_blank" rel="noopener">GitHub ↗</a>
-    </nav>
   </header>
 
-  <main id="main">
-    <!-- ============================================================ hero -->
-    <section class="hero" aria-labelledby="heroTitle">
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow">Pilot Phil · Engineering Portfolio</p>
-          <h1 id="heroTitle">
-            <span>Pilot</span>
-            <span>Phil<em class="h1-dot">.</em></span>
-          </h1>
-          <p class="hero-role">工程力学 / 计算动力学 / 智能体工程</p>
-          <p class="hero-lead">把冰在复杂应力下的失效判据、结构动力响应与科研工具，做成可以被亲手验证的东西。</p>
+  <main class="wrap main">
+    <div class="tabs" role="tablist" aria-label="内容分类">
+      <button class="tab is-active" id="tab-ice" type="button" role="tab" aria-selected="true" aria-controls="panel-ice" data-tab="ice">冰力学</button>
+      <button class="tab" id="tab-load" type="button" role="tab" aria-selected="false" aria-controls="panel-load" data-tab="load" tabindex="-1">冰载荷预报</button>
+      <button class="tab" id="tab-plugin" type="button" role="tab" aria-selected="false" aria-controls="panel-plugin" data-tab="plugin" tabindex="-1">DSH Plugin</button>
+      <button class="tab" id="tab-agent" type="button" role="tab" aria-selected="false" aria-controls="panel-agent" data-tab="agent" tabindex="-1">Agent</button>
+    </div>
 
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#work">
-              浏览项目
-              <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M2.5 7h9M8 3.5 11.5 7 8 10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <a class="btn btn-ghost" href="#about">关于我</a>
-          </div>
-
-          <dl class="hero-meta">
-            <div>
-              <dt>Now</dt>
-              <dd>独立研究与项目实践</dd>
-            </div>
-            <div>
-              <dt>Based</dt>
-              <dd>中国 · 远程协作</dd>
-            </div>
-            <div>
-              <dt>Open to</dt>
-              <dd>研究合作 / 工程交流</dd>
-            </div>
-          </dl>
+    <section class="panel" id="panel-ice" role="tabpanel" aria-labelledby="tab-ice" data-panel="ice">
+      <a class="card card-wide" href="/projects/ice-failure/">
+        <div class="card-top">
+          <span class="card-tag">交互演示</span>
+          <span class="card-arrow" aria-hidden="true">→</span>
         </div>
-
-        <figure class="hero-figure" data-reveal>
-          <div class="figure-frame">
-            <div class="figure-head">
-              <span>Fig. 01</span>
-              <span>σ₁–σ₂ / Failure Envelope</span>
-            </div>
-
-            <svg class="envelope" viewBox="0 0 520 420" role="img" aria-labelledby="envTitle envDesc">
-              <title id="envTitle">四种失效准则在 σ₁–σ₂ 平面的包络示意图</title>
-              <desc id="envDesc">第一强度理论为方形包络，Mises 为椭圆，Mohr–Coulomb 为六边形，Tsai–Wu 为拉压不对称的闭合曲线。红色点表示一个示例应力状态。</desc>
-
-              <defs>
-                <pattern id="plotGrid" width="42.4" height="32.6" patternUnits="userSpaceOnUse">
-                  <path d="M42.4 0H0v32.6" fill="none" stroke="#d9d3c6" stroke-width="0.6"/>
-                </pattern>
-              </defs>
-
-              <rect x="64" y="30" width="424" height="326" fill="url(#plotGrid)" opacity="0.5"/>
-
-              <!-- hydrostatic axis -->
-              <line x1="116" y1="334" x2="432" y2="58" stroke="#cfc8b9" stroke-width="0.8" stroke-dasharray="3 5"/>
-
-              <!-- axes -->
-              <g stroke="#aea696" stroke-width="1">
-                <line x1="64" y1="196" x2="488" y2="196"/>
-                <line x1="276" y1="30" x2="276" y2="356"/>
-                <path d="M482 192l6 4-6 4" fill="none"/>
-                <path d="M272 36l4-6 4 6" fill="none"/>
-              </g>
-
-              <!-- ticks -->
-              <g stroke="#c4bcad" stroke-width="1">
-                <line x1="196" y1="192" x2="196" y2="200"/>
-                <line x1="356" y1="192" x2="356" y2="200"/>
-                <line x1="436" y1="192" x2="436" y2="200"/>
-                <line x1="116" y1="192" x2="116" y2="200"/>
-                <line x1="272" y1="116" x2="280" y2="116"/>
-                <line x1="272" y1="276" x2="280" y2="276"/>
-                <line x1="272" y1="56" x2="280" y2="56"/>
-                <line x1="272" y1="336" x2="280" y2="336"/>
-              </g>
-
-              <!-- axis labels -->
-              <g font-family="'SF Mono', Menlo, monospace" font-size="9" fill="#858a92">
-                <text x="492" y="200">σ₁</text>
-                <text x="282" y="24">σ₂</text>
-                <text x="283" y="211">O</text>
-                <text x="438" y="188" text-anchor="middle">+σt</text>
-                <text x="116" y="188" text-anchor="middle">−σc</text>
-              </g>
-
-              <!-- Rankine -->
-              <path class="draw" pathLength="1" d="M196 116H356V276H196Z" fill="none" stroke="#0b4f7a" stroke-width="1.5"/>
-              <!-- Mises -->
-              <ellipse class="draw draw-2" pathLength="1" cx="276" cy="196" rx="166" ry="108" transform="rotate(-45 276 196)" fill="none" stroke="#2f7fb8" stroke-width="1.35" stroke-dasharray="5 4"/>
-              <!-- Mohr–Coulomb -->
-              <path class="draw draw-3" pathLength="1" d="M250 92 366 146 372 256 250 330 128 256 134 146Z" fill="none" stroke="#6f93ad" stroke-width="1.35" stroke-dasharray="1.5 5" stroke-linecap="round"/>
-              <!-- Tsai–Wu -->
-              <path class="draw draw-4" pathLength="1" d="M300 108c52 4 88 42 94 94 6 60-38 114-102 128-68 14-132-24-150-84-16-56 16-112 76-132 26-9 54-9 82-6Z" fill="none" stroke="#b8531f" stroke-width="1.4"/>
-
-              <!-- example stress state -->
-              <g class="fade-in">
-                <line x1="372" y1="148" x2="372" y2="196" stroke="#b8531f" stroke-width="0.8" stroke-dasharray="2 4" opacity="0.55"/>
-                <line x1="372" y1="148" x2="276" y2="148" stroke="#b8531f" stroke-width="0.8" stroke-dasharray="2 4" opacity="0.55"/>
-                <circle class="pulse" cx="372" cy="148" r="9" fill="#b8531f" opacity="0.2"/>
-                <circle cx="372" cy="148" r="4" fill="#b8531f"/>
-                <circle cx="372" cy="148" r="7.5" fill="none" stroke="#b8531f" stroke-width="0.9" opacity="0.55"/>
-                <text x="384" y="144" font-family="'SF Mono', Menlo, monospace" font-size="9" fill="#b8531f">σ*</text>
-              </g>
-
-              <!-- corner note -->
-              <text x="64" y="377" font-family="'SF Mono', Menlo, monospace" font-size="8" letter-spacing="1" fill="#a8a196">SCHEMATIC / NOT TO SCALE</text>
-            </svg>
-
-            <div class="figure-legend" aria-label="图例">
-              <span class="legend-item"><i class="swatch swatch-rankine"></i>Rankine</span>
-              <span class="legend-item"><i class="swatch swatch-mises"></i>Mises</span>
-              <span class="legend-item"><i class="swatch swatch-mc"></i>Mohr–Coulomb</span>
-              <span class="legend-item"><i class="swatch swatch-tw"></i>Tsai–Wu</span>
-            </div>
-          </div>
-          <figcaption>四种准则对拉压不对称的处理各不相同，这也是多轴失效判断里最值得推敲的地方。可交互版本见 <a href="#work">项目 01</a>。</figcaption>
-        </figure>
-      </div>
-
-      <div class="container">
-        <div class="hero-strip" aria-label="关注领域">
-          <span>Ice Mechanics</span>
-          <span>Structural Dynamics</span>
-          <span>Numerical Simulation</span>
-          <span>DSH Plugin</span>
-          <span>Agent</span>
+        <h2>海冰三轴失效准则演示</h2>
+        <p>第一强度理论、Mises、Mohr–Coulomb 与 Tsai–Wu 四种失效准则，在 σ₁–σ₂ 平面与三维主应力空间中交互判定。</p>
+        <div class="card-foot">
+          <span>Three.js · WebGL</span>
+          <span class="card-open">打开演示</span>
         </div>
+      </a>
+    </section>
+
+    <section class="panel" id="panel-load" role="tabpanel" aria-labelledby="tab-load" data-panel="load" hidden>
+      <div class="empty">
+        <p class="empty-title">施工中</p>
+        <p class="empty-note">冰载荷预报的内容还在整理，之后会放上来。</p>
       </div>
     </section>
 
-    <!-- ============================================================ work -->
-    <section class="section section-work" id="work" aria-labelledby="workTitle">
-      <div class="container">
-        <header class="section-head split" data-reveal>
-          <div>
-            <p class="section-index">01 / 项目</p>
-            <h2 id="workTitle">Selected Work</h2>
+    <section class="panel" id="panel-plugin" role="tabpanel" aria-labelledby="tab-plugin" data-panel="plugin" hidden>
+      <div class="card-grid">
+        <a class="card" href="https://github.com/PilotPhil/dsh-session-status-colors" target="_blank" rel="noopener">
+          <div class="card-top">
+            <span class="card-tag">DSH Plugin</span>
+            <span class="card-arrow" aria-hidden="true">↗</span>
           </div>
-          <p class="section-lede">从课程作业到长期项目，记录问题、方法与可交互的结果。作品会持续替换与补充。</p>
-        </header>
-
-        <article class="featured" data-reveal>
-          <a class="featured-visual" href="/projects/ice-failure/" aria-label="打开海冰三轴失效准则交互演示">
-            <div class="browser">
-              <div class="browser-bar">
-                <span></span><span></span><span></span>
-                <em>pilotphil.github.io/projects/ice-failure</em>
-              </div>
-              <img src="/assets/img/ice-demo.png" alt="海冰三轴失效准则演示界面：二维应力平面、失效包络线与右侧判定面板" width="1600" height="1000" loading="lazy">
-            </div>
-            <span class="featured-badge">
-              在线演示
-              <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M3.5 10.5 10.5 3.5M5 3.5h5.5V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-          </a>
-
-          <div class="featured-body">
-            <p class="item-kicker">项目 01 · 课程作业 · 交互式可视化 · 2026</p>
-            <h3>海冰三轴失效准则演示</h3>
-            <p>把第一强度理论、Mises、Mohr–Coulomb 与 Tsai–Wu 四种失效准则放进同一个 σ₁–σ₂ 平面与三维主应力空间。调整拉压强度、拖动应力点，四种判据会同时给出结果。</p>
-            <ul class="feature-list">
-              <li>四种准则的实时判定与逐项数值代入</li>
-              <li>二维包络线与三维失效面联动</li>
-              <li>单文件部署，可离线打开</li>
-            </ul>
-            <div class="tag-row">
-              <span class="tag">Three.js</span>
-              <span class="tag">WebGL</span>
-              <span class="tag">失效准则</span>
-              <span class="tag">交互可视化</span>
-            </div>
-            <a class="text-link" href="/projects/ice-failure/">
-              打开交互演示
-              <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M3.5 10.5 10.5 3.5M5 3.5h5.5V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
+          <h2>会话状态配色</h2>
+          <p>按实时状态给 DSH 侧栏的会话条目着色：红为运行中，黄为等待处理，绿为完成未看；可选桌面置顶红绿灯。</p>
+          <div class="card-foot">
+            <span class="repo">dsh-session-status-colors</span>
+            <span class="card-open">GitHub</span>
           </div>
-        </article>
+        </a>
 
-        <div class="project-grid">
-          <article class="project-card" data-reveal style="--delay: 40ms">
-            <div class="card-top">
-              <span>02</span>
-              <span class="status">整理中</span>
-            </div>
-            <div class="card-icon" aria-hidden="true">
-              <svg viewBox="0 0 34 34" fill="none">
-                <path d="M2 18h4.2l3-9.5 5.2 19 5-23 4 13.5H32" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <h3>结构动力学 · 响应谱工具</h3>
-            <p>把地震波输入、模态叠加与响应谱曲线整理成一套可复用的计算流程，正在补齐参数化与结果导出。</p>
-            <div class="tag-row">
-              <span class="tag">Python</span>
-              <span class="tag">数值计算</span>
-            </div>
-          </article>
+        <a class="card" href="https://github.com/PilotPhil/dsh-flowmeter" target="_blank" rel="noopener">
+          <div class="card-top">
+            <span class="card-tag">DSH Plugin</span>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <h2>模型流速</h2>
+          <p>在输入框下方显示实时 tok/s、首字延迟与均速图表，侧栏再放一枚所有会话的合计流速读数。</p>
+          <div class="card-foot">
+            <span class="repo">dsh-flowmeter</span>
+            <span class="card-open">GitHub</span>
+          </div>
+        </a>
 
-          <article class="project-card" data-reveal style="--delay: 100ms">
-            <div class="card-top">
-              <span>03</span>
-              <span class="status">开发中</span>
-            </div>
-            <div class="card-icon" aria-hidden="true">
-              <svg viewBox="0 0 34 34" fill="none">
-                <path d="M12 3v6M22 3v6M9 9h16v3.5a8 8 0 0 1-8 8 8 8 0 0 1-8-8V9ZM17 20.5V31" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M9 13h16" stroke="currentColor" stroke-width="1.3"/>
-              </svg>
-            </div>
-            <h3>DSH Plugin · 科研工作流扩展</h3>
-            <p>为 DeepSeek Harness 编写插件，把文献、数据与实验记录接进同一条工作流，减少重复操作。</p>
-            <div class="tag-row">
-              <span class="tag">TypeScript</span>
-              <span class="tag">Plugin</span>
-            </div>
-          </article>
-
-          <article class="project-card" data-reveal style="--delay: 160ms">
-            <div class="card-top">
-              <span>04</span>
-              <span class="status">实验中</span>
-            </div>
-            <div class="card-icon" aria-hidden="true">
-              <svg viewBox="0 0 34 34" fill="none">
-                <circle cx="17" cy="8" r="4" stroke="currentColor" stroke-width="1.3"/>
-                <circle cx="7.5" cy="26" r="4" stroke="currentColor" stroke-width="1.3"/>
-                <circle cx="26.5" cy="26" r="4" stroke="currentColor" stroke-width="1.3"/>
-                <path d="M14.5 11.5 9.5 22M19.5 11.5l5 10.5M11.5 26h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <h3>Agent · 研究助理实验</h3>
-            <p>尝试让智能体承担检索、复现与结果核对，观察它在真实科研任务里的边界与可靠性。</p>
-            <div class="tag-row">
-              <span class="tag">LLM</span>
-              <span class="tag">Agent</span>
-              <span class="tag">Workflow</span>
-            </div>
-          </article>
-        </div>
-
-        <div class="work-more" data-reveal>
-          <a class="text-link" href="https://github.com/PilotPhil" target="_blank" rel="noopener">
-            更多实验与代码在 GitHub
-            <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M3.5 10.5 10.5 3.5M5 3.5h5.5V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </a>
-        </div>
+        <a class="card" href="https://github.com/PilotPhil/dsh-opencodego-usage" target="_blank" rel="noopener">
+          <div class="card-top">
+            <span class="card-tag">DSH Plugin</span>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <h2>OpenCode Go 余量</h2>
+          <p>在 DSH 侧栏显示 OpenCode Go 订阅的 5 小时、本周、本月三档余量，带进度条、重置时间与一键刷新。</p>
+          <div class="card-foot">
+            <span class="repo">dsh-opencodego-usage</span>
+            <span class="card-open">GitHub</span>
+          </div>
+        </a>
       </div>
     </section>
 
-    <!-- =========================================================== focus -->
-    <section class="section section-focus" id="focus" aria-labelledby="focusTitle">
-      <div class="container">
-        <header class="section-head split" data-reveal>
-          <div>
-            <p class="section-index">02 / 方向</p>
-            <h2 id="focusTitle">四个方向，<br>一条线索。</h2>
-          </div>
-          <p class="section-lede">从材料失效，到结构响应，再到把工具交给智能体。问题不同，方法相通：建模、计算、验证，然后把它讲清楚。</p>
-        </header>
-
-        <ol class="focus-list">
-          <li class="focus-item" data-reveal>
-            <span class="focus-num">01</span>
-            <div>
-              <h3>冰力学与失效准则</h3>
-              <p>海冰在复杂应力状态下的强度与破坏。关注三轴试验、失效包络与多准则判据之间的一致性，也关心这些判据在工程尺度上是否仍然成立。</p>
-            </div>
-            <span class="focus-tag">Ice Mechanics</span>
-          </li>
-
-          <li class="focus-item" data-reveal>
-            <span class="focus-num">02</span>
-            <div>
-              <h3>结构动力学与数值仿真</h3>
-              <p>从模态、响应谱到瞬态响应。用数值方法把结构的动力行为拆开来看，再用实验或现场数据校对模型。</p>
-            </div>
-            <span class="focus-tag">Structural Dynamics</span>
-          </li>
-
-          <li class="focus-item" data-reveal>
-            <span class="focus-num">03</span>
-            <div>
-              <h3>DSH Plugin 工具链</h3>
-              <p>为 DeepSeek Harness 写插件：把重复的检索、整理、计算与检查收进可复用的工具里，让研究流程更顺手，也更少出错。</p>
-            </div>
-            <span class="focus-tag">Tooling</span>
-          </li>
-
-          <li class="focus-item" data-reveal>
-            <span class="focus-num">04</span>
-            <div>
-              <h3>Agent 与科研工作流</h3>
-              <p>探索智能体在文献调研、代码复现与结果核对中的角色。不是替代判断，而是把人的注意力留给真正需要判断的地方。</p>
-            </div>
-            <span class="focus-tag">Agent</span>
-          </li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- =========================================================== about -->
-    <section class="section" id="about" aria-labelledby="aboutTitle">
-      <div class="container">
-        <header class="section-head" data-reveal>
-          <p class="section-index">03 / 关于</p>
-          <h2 id="aboutTitle">在力学与代码之间，<br>寻找可以复现的解释。</h2>
-        </header>
-
-        <div class="about-grid">
-          <div class="about-copy" data-reveal>
-            <p class="lede">我关注材料与结构在复杂应力状态下的响应：从海冰的三轴强度与失效包络，到结构动力学中的模态与响应谱。</p>
-            <p>相比停留在公式里的结论，我更在意它能否被建模、被计算、被可视化，最后被验证。一个判断只有在边界条件说清楚、结果可以复现之后，才算真正站得住。</p>
-            <p>代码是实验的延伸。我用 Python / MATLAB 做计算，用 Three.js 把失效面搬进浏览器，也在探索 DSH Plugin 与 Agent 如何介入科研工作流——让重复的部分自动化，把判断留给人。</p>
-            <p>这个站点记录我正在做的事：一些已经可以运行的作品，一些还在整理中的想法，以及过程中写下的笔记。</p>
-          </div>
-
-          <aside class="about-facts" data-reveal style="--delay: 80ms">
-            <dl>
-              <div class="fact">
-                <dt>Focus</dt>
-                <dd>冰力学 / 结构动力学 / 智能体工具</dd>
-              </div>
-              <div class="fact">
-                <dt>Tools</dt>
-                <dd>Python · MATLAB · C++ · Three.js · LaTeX</dd>
-              </div>
-              <div class="fact">
-                <dt>Now</dt>
-                <dd>独立研究与项目实践</dd>
-              </div>
-              <div class="fact">
-                <dt>Base</dt>
-                <dd>中国 · 远程协作</dd>
-              </div>
-            </dl>
-            <div class="about-tags" aria-label="关键词">
-              <span class="tag">Ice Mechanics</span>
-              <span class="tag">Dynamics</span>
-              <span class="tag">Simulation</span>
-              <span class="tag">Visualization</span>
-              <span class="tag">DSH Plugin</span>
-              <span class="tag">Agent</span>
-            </div>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <!-- =========================================================== notes -->
-    <section class="section" id="notes" aria-labelledby="notesTitle">
-      <div class="container">
-        <header class="section-head split" data-reveal>
-          <div>
-            <p class="section-index">04 / 笔记</p>
-            <h2 id="notesTitle">写作与记录</h2>
-          </div>
-          <p class="section-lede">把推导、实现和还没想清楚的问题写下来。以下主题正在整理，发布后会替换成正文链接。</p>
-        </header>
-
-        <div class="notes-list">
-          <article class="note" data-reveal>
-            <span class="note-index">01</span>
-            <h3>从 Mohr–Coulomb 到 Tsai–Wu：四种冰失效准则的直觉</h3>
-            <span class="note-tags">失效准则 / 推导</span>
-            <span class="note-status">即将发布</span>
-          </article>
-          <article class="note" data-reveal>
-            <span class="note-index">02</span>
-            <h3>把失效包络面搬进浏览器：一次 WebGL 可视化实践</h3>
-            <span class="note-tags">可视化 / 工程</span>
-            <span class="note-status">整理中</span>
-          </article>
-          <article class="note" data-reveal>
-            <span class="note-index">03</span>
-            <h3>当 Agent 进入科研工作流：先自动化什么？</h3>
-            <span class="note-tags">智能体 / 方法</span>
-            <span class="note-status">构思中</span>
-          </article>
-        </div>
-        <p class="notes-foot" data-reveal>笔记会随项目推进更新。你也可以在 GitHub 上看到最近的提交。</p>
-      </div>
-    </section>
-
-    <!-- ========================================================= contact -->
-    <section class="section section-contact" id="contact" aria-labelledby="contactTitle">
-      <div class="container">
-        <div class="contact-grid" data-reveal>
-          <div>
-            <p class="section-index">05 / 联系</p>
-            <h2 id="contactTitle">一起把问题<br>做深一点。</h2>
-          </div>
-          <div class="contact-body">
-            <p>如果你也在做冰力学、结构动力学或科研工具，欢迎来信交流。合作、讨论、指正都欢迎。</p>
-            <div class="email-row">
-              <a class="email-link" href="mailto:632913013@qq.com">632913013@qq.com</a>
-              <button class="copy-btn" type="button" data-copy="632913013@qq.com" aria-label="复制邮箱地址" title="复制邮箱地址">
-                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <rect x="5.5" y="5.5" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
-                  <path d="M10.5 5.5v-2a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2" stroke="currentColor" stroke-width="1.2"/>
-                </svg>
-              </button>
-            </div>
-            <div class="contact-links">
-              <a class="contact-link" href="https://github.com/PilotPhil" target="_blank" rel="noopener">
-                GitHub
-                <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <path d="M3.5 10.5 10.5 3.5M5 3.5h5.5V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-              <a class="contact-link" href="mailto:632913013@qq.com">
-                Email
-                <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <path d="M3.5 10.5 10.5 3.5M5 3.5h5.5V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
-          </div>
-        </div>
+    <section class="panel" id="panel-agent" role="tabpanel" aria-labelledby="tab-agent" data-panel="agent" hidden>
+      <div class="empty">
+        <p class="empty-title">施工中</p>
+        <p class="empty-note">Agent 相关的内容还在整理，之后会放上来。</p>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="container footer-grid">
-      <div class="footer-brand-col">
-        <p class="footer-brand">Pilot Phil</p>
-        <p class="footer-note">力学 × 代码 × 可视化。<br>保持好奇，保持验证。</p>
-      </div>
-      <div class="footer-col">
-        <h3>Navigate</h3>
-        <a href="#work">项目</a>
-        <a href="#focus">方向</a>
-        <a href="#about">关于</a>
-        <a href="#notes">笔记</a>
-        <a href="#contact">联系</a>
-      </div>
-      <div class="footer-col">
-        <h3>Elsewhere</h3>
-        <a href="https://github.com/PilotPhil" target="_blank" rel="noopener">GitHub ↗</a>
-        <a href="mailto:632913013@qq.com">Email ↗</a>
-        <a href="#top" class="back-top">
-          回到顶部
-          <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <path d="M7 11.5v-9M3.5 6 7 2.5 10.5 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
-      </div>
-    </div>
-
-    <div class="container footer-bottom">
-      <span>© <span data-year>2026</span> Pilot Phil</span>
-      <span>Static site · GitHub Pages</span>
-      <span>Built by hand, kept simple.</span>
+    <div class="wrap footer-inner">
+      <span>© 2026 Pilot Phil</span>
+      <span>GitHub Pages</span>
     </div>
   </footer>
-
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="/assets/js/main.js" defer></script>
 </body>

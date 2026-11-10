@@ -3,23 +3,33 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>404 · Pilot Phil</title>
+  <title>页面不存在 · Pilot Phil</title>
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#f6f4ee">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/assets/css/main.css">
 </head>
 <body>
-  <main class="error-page">
-    <div class="error-inner">
-      <p class="error-kicker">404 / Page Not Found</p>
-      <p class="error-code" aria-hidden="true">404</p>
-      <h1>这一页不在应力范围内。</h1>
-      <p class="error-desc">地址可能写错了，或者内容还没有放上来。<br>回到主页，从项目开始看起。</p>
-      <div class="error-actions">
-        <a class="btn btn-primary" href="/">回到主页</a>
-        <a class="btn btn-ghost" href="/#work">看看项目</a>
-      </div>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M6 16V4h4.6c2.7 0 4.4 1.5 4.4 3.9s-1.7 3.9-4.4 3.9H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/>
+          </svg>
+        </span>
+        <span class="brand-name">Pilot Phil</span>
+      </a>
+      <a class="github" href="https://github.com/PilotPhil" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </header>
+
+  <main class="notfound">
+    <div>
+      <p class="notfound-code">404 / Page Not Found</p>
+      <h1>页面不存在</h1>
+      <p class="notfound-note">地址可能写错了，或者内容还没有放上来。</p>
+      <a class="button" href="/">回到主页</a>
     </div>
   </main>
 </body>
