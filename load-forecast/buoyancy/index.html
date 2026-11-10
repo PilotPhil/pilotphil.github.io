@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f1f8fb">
+  <meta name="description" content="一个用水平截面求解浸没体积与浮力的实时 3D 冰块实验。纯 WebGL、无第三方库。">
+  <title>浮冰实验室 · 水平截面与浮力</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232b9dce'/%3E%3Cpath d='M18 23l14-8 14 8v18l-14 8-14-8V23z' fill='none' stroke='white' stroke-width='3'/%3E%3Cpath d='M18 23l14 8 14-8M32 31v18' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand" aria-label="浮冰实验室">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40">
+            <path d="M9.5 14.5L20 8.8l10.5 5.7v11.1L20 31.3 9.5 25.6V14.5Z" fill="none" stroke="white" stroke-width="1.8"/>
+            <path d="M9.5 14.5 20 20l10.5-5.5M20 20v11.3" fill="none" stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="brand-words">
+          <strong>浮冰实验室</strong>
+          <span>BUOYANCY LAB</span>
+        </span>
+      </div>
+      <div class="topbar-meta">
+        <span class="topbar-rule" aria-hidden="true"></span>
+        <span class="topbar-text">水平截面 · 浮力 · 六自由度</span>
+        <span class="topbar-chip"><span></span>Pure WebGL</span>
+        <a class="back-home" href="../../#load" title="返回 Pilot Phil 主页">← 主页</a>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="stage-shell" id="stage" aria-label="三维浮力仿真场景">
+        <canvas id="scene" role="img" aria-label="多块形状不同的冰块在水面上下漂浮的三维场景"></canvas>
+
+        <svg class="annotations" id="annotations" aria-hidden="true">
+          <defs>
+            <marker id="arrowBuoyancy" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.8" markerHeight="5.8" orient="auto-start-reverse">
+              <path d="M0 0L10 5L0 10z" fill="#168fba"/>
+            </marker>
+            <marker id="arrowGravity" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="5.4" markerHeight="5.4" orient="auto-start-reverse">
+              <path d="M0 0L10 5L0 10z" fill="#e59355"/>
+            </marker>
+          </defs>
+          <g id="ambientSections" class="ambient-sections"></g>
+          <g id="sliceGroup" class="slice-group">
+            <polygon id="sliceGlow" class="slice-glow" points=""></polygon>
+            <polygon id="sliceLine" class="slice-line" points=""></polygon>
+          </g>
+          <g id="forceGroup" class="force-group">
+            <g id="buoyancyGroup">
+              <line id="buoyancyArrow" class="force-line force-line--buoyancy" x1="0" y1="0" x2="0" y2="0" marker-end="url(#arrowBuoyancy)"></line>
+              <circle id="cobHalo" class="point-halo point-halo--buoyancy" cx="0" cy="0" r="9"></circle>
+              <circle id="cobDot" class="point-dot point-dot--buoyancy" cx="0" cy="0" r="4.2"></circle>
+            </g>
+            <g id="gravityGroup">
+              <line id="gravityArrow" class="force-line force-line--gravity" x1="0" y1="0" x2="0" y2="0" marker-end="url(#arrowGravity)"></line>
+              <circle id="cogHalo" class="point-halo point-halo--gravity" cx="0" cy="0" r="7.5"></circle>
+              <circle id="cogDot" class="point-dot point-dot--gravity" cx="0" cy="0" r="3.6"></circle>
+            </g>
+          </g>
+        </svg>
+
+        <div class="force-labels is-hidden" id="forceLabels" aria-hidden="true">
+          <span class="point-tag point-tag--buoyancy" id="cobTag"><span class="tag-key">C<sub>B</sub></span><span class="tag-caption">浮心</span></span>
+          <span class="point-tag point-tag--gravity" id="cogTag"><span class="tag-key">C<sub>G</sub></span><span class="tag-caption">重心</span></span>
+          <span class="force-tag force-tag--buoyancy" id="fbTag">F<sub>b</sub></span>
+          <span class="force-tag force-tag--gravity" id="gTag">G</span>
+        </div>
+
+        <aside class="params" id="paramsPanel" aria-label="实验参数">
+          <div class="params-head">
+            <div>
+              <span class="kicker">CONTROL</span>
+              <h2>实验参数</h2>
+            </div>
+            <button class="icon-ghost collapse-btn" id="collapseBtn" type="button" aria-label="收起参数面板" aria-expanded="true" aria-controls="paramsBody">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <div class="params-body" id="paramsBody">
+            <div class="control">
+              <div class="control-label">
+                <label for="waterDensity">水的密度 <i>ρ<sub>w</sub></i></label>
+                <output for="waterDensity"><span id="waterDensityOut">1,000</span><small>kg/m³</small></output>
+              </div>
+              <input class="range" type="range" id="waterDensity" min="900" max="1100" step="5" value="1000" aria-label="水的密度">
+            </div>
+
+            <div class="control">
+              <div class="control-label">
+                <label for="iceDensity">冰的密度 <i>ρ<sub>i</sub></i></label>
+                <output for="iceDensity"><span id="iceDensityOut">900</span><small>kg/m³</small></output>
+              </div>
+              <input class="range" type="range" id="iceDensity" min="700" max="1050" step="5" value="900" aria-label="冰的密度">
+            </div>
+
+            <div class="density-note" id="densityNote">
+              <span class="note-dot"></span>
+              <span id="densityNoteText">平稳漂浮时约 90% 体积在水下</span>
+            </div>
+
+            <div class="control control--gravity">
+              <div class="control-label">
+                <label for="gravity">重力加速度 <i>g</i></label>
+                <output for="gravity"><span id="gravityOut">9.8</span><small>m/s²</small></output>
+              </div>
+              <input class="range" type="range" id="gravity" min="1.6" max="15" step="0.1" value="9.8" aria-label="重力加速度">
+            </div>
+
+            <div class="panel-rule"></div>
+
+            <div class="add-head">
+              <span>放入冰块 <em>点击形状</em></span>
+              <small>随机高度与姿态</small>
+            </div>
+            <div class="shape-picker">
+              <button class="shape-add" type="button" data-shape="box" title="添加长方体" aria-label="添加长方体">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8l8-4 8 4v9l-8 4-8-4V8Z"/><path d="M4 8l8 4 8-4M12 12v9"/></svg>
+                <span>长方体</span>
+              </button>
+              <button class="shape-add" type="button" data-shape="hex" title="添加六棱柱" aria-label="添加六棱柱">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l7.6 4.4v9.6L12 21.2l-7.6-4.4V7.2L12 2.8Z"/><path d="M4.4 7.2L12 11.7l7.6-4.5M12 11.7v9.5"/></svg>
+                <span>六棱柱</span>
+              </button>
+              <button class="shape-add" type="button" data-shape="sphere" title="添加球体" aria-label="添加球体">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><ellipse cx="12" cy="12" rx="3.7" ry="8.4"/><path d="M4.1 9.8h15.8"/></svg>
+                <span>球体</span>
+              </button>
+              <button class="shape-add" type="button" data-shape="tetra" title="添加四面体" aria-label="添加四面体">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8L21 19H3L12 2.8Z"/><path d="M12 2.8v9.5m0 0L3 19m9-6.7L21 19"/></svg>
+                <span>四面体</span>
+              </button>
+              <button class="shape-add" type="button" data-shape="cylinder" title="添加圆柱体" aria-label="添加圆柱体">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5.8" rx="7" ry="2.8"/><path d="M5 5.8v12.4c0 1.55 3.13 2.8 7 2.8s7-1.25 7-2.8V5.8"/><path d="M5 18.2c0 1.55 3.13 2.8 7 2.8s7-1.25 7-2.8"/></svg>
+                <span>圆柱体</span>
+              </button>
+            </div>
+
+            <div class="params-foot">
+              <span><b id="bodyCount">5</b> / 8 块 · 随机姿态</span>
+              <button class="text-btn" type="button" id="resetBtn">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15.6 8.2A6.2 6.2 0 1 0 16 11.5M15.6 8.2V4.5m0 3.7h-3.7" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                重置
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <div class="scene-hud">
+          <div class="live-pill" id="livePill">
+            <span class="live-dot"></span>
+            <span id="liveText">实时演算</span>
+          </div>
+          <button class="hud-btn" id="pauseBtn" type="button" aria-label="暂停仿真" title="暂停 / 继续">
+            <svg class="icon-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10M13 5v10"/></svg>
+            <svg class="icon-play" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4.8l8 5.2-8 5.2V4.8Z"/></svg>
+          </button>
+          <button class="hud-btn" id="viewBtn" type="button" aria-label="重置视角" title="重置视角">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 9.2A6.2 6.2 0 0 1 15.8 6.2M16 4.2v4.4h-4.4M16 10.8A6.2 6.2 0 0 1 4.2 13.8M4 15.8v-4.4h4.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+
+        <div class="scene-foot">
+          <div class="scene-hint">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.8v14.4M2.8 10h14.4M10 2.8L8.2 4.7M10 2.8l1.8 1.9M10 17.2l-1.8-1.9M10 17.2l1.8-1.9M2.8 10l1.9-1.8M2.8 10l1.9 1.8M17.2 10l-1.9-1.8M17.2 10l-1.9 1.8" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            拖动旋转 · 滚轮缩放 · 点选冰块
+          </div>
+          <button class="force-toggle is-on" id="forceToggle" type="button" aria-pressed="true">
+            <span class="toggle-track"><span></span></span>
+            受力显示
+          </button>
+        </div>
+
+        <div class="scene-toast" id="toast" role="status" aria-live="polite"></div>
+
+        <div class="webgl-fallback" id="webglFallback" hidden>
+          <strong>这个浏览器没有启用 WebGL</strong>
+          <span>请换一个支持 WebGL 的浏览器，或检查硬件加速设置后再打开实验。</span>
+        </div>
+      </section>
+
+      <aside class="explainer" aria-label="浮力计算步骤讲解">
+        <div class="explainer-head">
+          <div class="explainer-kicker"><span class="kicker-dot"></span>逐帧求解 · PER-FRAME SOLVER</div>
+          <h1>水平截面，如何托起一块冰？</h1>
+          <p class="explainer-lede">切开网格，量出浸没体积，再把浮力准确地放回浮心。</p>
+          <button class="selected-chip" id="selectedChip" type="button" aria-label="切换到下一块冰">
+            <span class="selected-icon" id="selectedIcon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8l8-4 8 4v9l-8 4-8-4V8Z"/><path d="M4 8l8 4 8-4M12 12v9"/></svg>
+            </span>
+            <span class="selected-meta"><small>当前追踪</small><strong id="selectedName">正在准备冰块</strong></span>
+            <span class="selected-state" id="selectedState">—</span>
+            <svg class="selected-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+
+        <div class="explainer-scroll" id="explainerScroll">
+          <div class="steps-label"><span>求解步骤</span><span>4 STEPS</span></div>
+          <ol class="steps">
+            <li class="step">
+              <div class="step-num">01</div>
+              <div class="step-body">
+                <div class="step-head">
+                  <div class="step-copy">
+                    <h3>水平面切开网格</h3>
+                    <p>以水面为切刀，逐面裁掉上半部分，留下闭合的浸没体。</p>
+                  </div>
+                  <svg class="step-fig" viewBox="0 0 72 72" aria-hidden="true">
+                    <defs><clipPath id="clipFig1"><rect x="0" y="38" width="72" height="34"/></clipPath></defs>
+                    <path d="M17 15L51 20L58 52L24 59Z" fill="#eaf8fc" stroke="#5692a7" stroke-width="1.15" stroke-linejoin="round"/>
+                    <path d="M17 15L51 20L58 52L24 59Z" fill="#a9ddeb" clip-path="url(#clipFig1)"/>
+                    <path d="M17 15L51 20L58 52L24 59Z" fill="none" stroke="#4c8aa1" stroke-width="1.1" stroke-linejoin="round" clip-path="url(#clipFig1)"/>
+                    <line x1="6" y1="38" x2="66" y2="38" stroke="#349fc4" stroke-width="1.15" stroke-dasharray="3 3"/>
+                    <circle cx="17" cy="15" r="1.7" fill="#fff" stroke="#4f8ba1" stroke-width=".9"/>
+                    <circle cx="51" cy="20" r="1.7" fill="#fff" stroke="#4f8ba1" stroke-width=".9"/>
+                    <circle cx="58" cy="52" r="1.7" fill="#fff" stroke="#4f8ba1" stroke-width=".9"/>
+                    <circle cx="24" cy="59" r="1.7" fill="#fff" stroke="#4f8ba1" stroke-width=".9"/>
+                  </svg>
+                </div>
+                <div class="formula">
+                  <span class="math">Ω<sub>sub</sub> = Ω ∩ { y ≤ h<sub>w</sub> }</span>
+                </div>
+                <div class="step-live"><span>当前截面</span><b id="sliceState">—</b></div>
+              </div>
+            </li>
+
+            <li class="step">
+              <div class="step-num">02</div>
+              <div class="step-body">
+                <div class="step-head">
+                  <div class="step-copy">
+                    <h3>累加体积与浮心</h3>
+                    <p>补上水面封口，拆成有向四面体，分别求体积与一阶矩。</p>
+                  </div>
+                  <svg class="step-fig" viewBox="0 0 72 72" aria-hidden="true">
+                    <polygon points="11,47 27,20 60,31 53,56 23,60" fill="#e3f4f9" stroke="#568fa3" stroke-width="1.05" stroke-linejoin="round"/>
+                    <path d="M35 41L11 47M35 41L27 20M35 41L60 31M35 41L53 56M35 41L23 60" fill="none" stroke="#8bbdcc" stroke-width=".8" stroke-dasharray="2 2"/>
+                    <circle cx="35" cy="41" r="2.5" fill="#158eb8"/>
+                    <g fill="#ffffff" stroke="#4e8ba0" stroke-width=".9">
+                      <circle cx="11" cy="47" r="1.7"/><circle cx="27" cy="20" r="1.7"/><circle cx="60" cy="31" r="1.7"/>
+                      <circle cx="53" cy="56" r="1.7"/><circle cx="23" cy="60" r="1.7"/>
+                    </g>
+                  </svg>
+                </div>
+                <div class="formula formula--stack">
+                  <span class="math">V<sub>sub</sub> = Σ<sub>t</sub> <span class="frac frac--sm"><span>1</span><span>6</span></span> a · (b × c)</span>
+                  <span class="math">C<sub>B</sub> = <span class="frac"><span>Σ<sub>t</sub> V<sub>t</sub> (a + b + c) / 4</span><span>V<sub>sub</sub></span></span></span>
+                </div>
+                <div class="step-live step-live--split">
+                  <span>浸没体积 <b id="volumeLive">—</b></span>
+                  <span>浮心 <b id="cobLive">—</b></span>
+                </div>
+              </div>
+            </li>
+
+            <li class="step">
+              <div class="step-num">03</div>
+              <div class="step-body">
+                <div class="step-head">
+                  <div class="step-copy">
+                    <h3>得到向上浮力</h3>
+                    <p>排开水的重量就是浮力，竖直向上，作用在浮心 C<sub>B</sub>。</p>
+                  </div>
+                  <svg class="step-fig" viewBox="0 0 72 72" aria-hidden="true">
+                    <path d="M20 22L52 22L49 52L23 52Z" fill="#e5f5fa" stroke="#558fa3" stroke-width="1.08" stroke-linejoin="round"/>
+                    <path d="M20 22L52 22L49 38L23 38Z" fill="#c8eaf4" opacity=".8"/>
+                    <line x1="8" y1="38" x2="64" y2="38" stroke="#349fc4" stroke-width="1.05" stroke-dasharray="3 3"/>
+                    <circle cx="29" cy="42" r="2.2" fill="#158eb8" stroke="#fff" stroke-width="1"/>
+                    <circle cx="43" cy="31" r="2.2" fill="#e59355" stroke="#fff" stroke-width="1"/>
+                    <line x1="26" y1="38" x2="26" y2="15" stroke="#299bc2" stroke-width="1.2"/>
+                    <path d="M26 10l-3.5 6h7L26 10Z" fill="#299bc2"/>
+                    <line x1="47" y1="38" x2="47" y2="59" stroke="#e59355" stroke-width="1.2"/>
+                    <path d="M47 64l-3.5-6h7L47 64Z" fill="#e59355"/>
+                  </svg>
+                </div>
+                <div class="formula">
+                  <span class="math">F<sub>b</sub> = ρ<sub>w</sub> g V<sub>sub</sub> <span class="vec-arrow">↑</span></span>
+                  <span class="math math--quiet">G = ρ<sub>i</sub> g V</span>
+                </div>
+                <div class="step-live step-live--split">
+                  <span>浮力 <b id="forceLive">—</b></span>
+                  <span>重力 <b id="weightLive">—</b></span>
+                </div>
+              </div>
+            </li>
+
+            <li class="step">
+              <div class="step-num">04</div>
+              <div class="step-body">
+                <div class="step-head">
+                  <div class="step-copy">
+                    <h3>力矩改变姿态</h3>
+                    <p>浮心 C<sub>B</sub> 与重心 C<sub>G</sub> 错开时产生恢复力矩，积分后更新姿态。</p>
+                  </div>
+                  <svg class="step-fig" viewBox="0 0 72 72" aria-hidden="true">
+                    <path d="M19 20L51 26L55 51L23 58Z" fill="#e7f6fa" stroke="#568fa3" stroke-width="1.05" stroke-linejoin="round" transform="rotate(-8 37 39)"/>
+                    <line x1="8" y1="44" x2="64" y2="44" stroke="#349fc4" stroke-width="1.05" stroke-dasharray="3 3"/>
+                    <path d="M14 54C7 43 12 25 27 18" fill="none" stroke="#2b9dce" stroke-width="1.2" stroke-linecap="round"/>
+                    <path d="M31 15l-7 0l3.6 5.8L31 15Z" fill="#2b9dce"/>
+                    <circle cx="27" cy="38" r="2.1" fill="#158eb8" stroke="#fff" stroke-width=".8"/>
+                    <circle cx="38" cy="34" r="2.1" fill="#e59355" stroke="#fff" stroke-width=".8"/>
+                    <path d="M27 38L38 34" stroke="#7da6b3" stroke-width=".8" stroke-dasharray="2 2"/>
+                  </svg>
+                </div>
+                <div class="formula formula--stack formula--motion">
+                  <span class="math">m <span class="vec">a</span> = F<sub>b</sub> + G + F<sub>d</sub></span>
+                  <span class="math">I <span class="vec">α</span> = (r<sub>B</sub> − r<sub>G</sub>) × F<sub>b</sub> − c<span class="vec">ω</span></span>
+                </div>
+                <div class="step-live step-live--split">
+                  <span>力矩 <b id="torqueLive">—</b></span>
+                  <span>角速度 <b id="spinLive">—</b></span>
+                </div>
+              </div>
+            </li>
+          </ol>
+
+          <div class="notation">
+            <span><i>ρ<sub>w</sub></i> 水密度</span>
+            <span><i>ρ<sub>i</sub></i> 冰密度</span>
+            <span><i>h<sub>w</sub></i> 水面高度</span>
+            <span>物理子步 120 Hz</span>
+          </div>
+        </div>
+        <div class="scroll-cue" id="scrollCue" aria-hidden="true">
+          <span>继续向下</span>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>

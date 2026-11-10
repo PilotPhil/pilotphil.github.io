@@ -10,6 +10,11 @@
   - 示例工程：`ccm/projects/` 下的 6 个 `.ccm.json`，主页卡片默认载入 `1.5m_5kts_500kPa_3207`
   - 源码：`ccm-src/`（从 `CCM_web` 复制，只保留 `packages/web` 与 `packages/core`，桌面端 `CCM_Re` 和 `.h5` 数据没有带过来）
 
+- [浮冰实验室](buoyancy/) —— 实时 3D 冰块漂浮实验。用水平截面求浸没体积与浮心，支持多块冰、六自由度、力矢量与公式联动。
+
+  - 在线：<https://pilotphil.github.io/load-forecast/buoyancy/>
+  - 源码：与本目录相同（纯静态，无构建步骤）
+
 ## 重新构建
 
 ```bash
@@ -28,3 +33,9 @@ pnpm --filter @ccm/web build
 - 补了 favicon 和页面 description
 
 仿真核心和界面逻辑未改动。
+
+
+## 浮冰实验室
+
+纯静态部署，没有构建步骤：`index.html` + `styles.css` + `src/*.js`。
+从原项目复制时未改动物理、渲染和界面逻辑，只在顶栏加了「← 主页」返回链接。
