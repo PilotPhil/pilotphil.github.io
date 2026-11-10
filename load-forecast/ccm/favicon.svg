@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Pilot Phil">
+  <rect width="64" height="64" rx="14" fill="#0b4f7a"/>
+  <path d="M23 47V17h10.6c7 0 11.4 3.8 11.4 9.9s-4.4 9.9-11.4 9.9H29" fill="none" stroke="#f6f4ee" stroke-width="4.2" stroke-linecap="square"/>
+  <circle cx="49" cy="49" r="3.1" fill="#d97a46"/>
+</svg>
