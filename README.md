@@ -76,7 +76,7 @@ git push origin main
 
 ## 演示页
 
-海冰三轴失效准则演示在 `ice-mechanics/ice-failure/`，为单文件、无外部依赖的页面，可离线打开。
-失效包络图、判定逻辑和样式均保持原样，只在顶栏加了返回主页的链接。
+海冰三轴失效准则演示在 `ice-mechanics/ice-failure/`，为静态多文件页面，无构建步骤、无外部网络依赖，可离线打开。
+新版的失效包络图、判定逻辑和样式均未改动，只在顶栏加了返回主页的链接。
 
 三维部分使用 three.js r152（MIT），许可见 `THIRD-PARTY-NOTICES.md`。

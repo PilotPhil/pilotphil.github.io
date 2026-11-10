@@ -2,7 +2,7 @@
 
 ## three.js r152
 
-本页面内联了 three.js（<https://threejs.org>），用于三维失效面的 WebGL 绘制。
+本页面使用随附的 three.js（`ice-mechanics/ice-failure/vendor/three.min.js`，<https://threejs.org>），用于三维失效面的 WebGL 绘制。
 以下为其 MIT 许可全文。
 
 ```text
