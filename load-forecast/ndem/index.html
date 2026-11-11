@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>船冰接触力学 · 交互演示</title>
+<style>
+  :root{
+    --bg:#faf9f5; --panel:#ffffff; --panel2:#f5f2e9; --line:#e7e2d4; --line2:#d6cfbd;
+    --ink:#262521; --muted:#6e6a5f; --dim:#9a9484;
+    --accent:#c15f3c; --ochre:#a8813c; --sage:#4a6b5e;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.7;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(1100px 520px at 8% -14%,rgba(193,95,60,.08),transparent 62%),
+                     radial-gradient(900px 460px at 96% 0%,rgba(168,129,60,.07),transparent 58%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:56px 24px;
+  }
+  .wrap{width:100%;max-width:960px}
+  .back-home{
+    display:inline-flex;align-items:center;gap:4px;margin-bottom:24px;
+    color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.04em;
+    text-decoration:none;transition:color .15s ease;
+  }
+  .back-home:hover{color:var(--accent)}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--accent);
+    text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:38px;font-weight:700;margin:0 0 14px;letter-spacing:-.025em;line-height:1.18}
+  .lead{font-size:15px;color:var(--muted);margin:0 0 34px;max-width:620px;line-height:1.8}
+  .lead b{color:var(--ink);font-weight:600}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  a.card{
+    display:block;text-decoration:none;color:inherit;background:var(--panel);
+    border:1px solid var(--line);border-radius:16px;padding:24px 24px 22px;
+    transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;
+    box-shadow:0 2px 0 rgba(0,0,0,0);
+  }
+  a.card:hover{transform:translateY(-3px);border-color:var(--line2);
+    box-shadow:0 20px 44px -28px rgba(60,50,35,.5)}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;letter-spacing:.1em;
+    text-transform:uppercase;font-family:var(--mono);color:var(--dim);margin-bottom:12px}
+  .tag i{width:6px;height:6px;border-radius:50%;background:var(--sage);display:block}
+  .card h2{font-size:20px;font-weight:680;margin:0 0 9px;letter-spacing:-.01em}
+  .card p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.75}
+  .card ul{margin:12px 0 0;padding-left:18px;font-size:12.5px;color:var(--dim);line-height:1.9}
+  .go{margin-top:16px;font-size:12.5px;color:var(--accent);font-weight:600;
+    display:inline-flex;align-items:center;gap:5px}
+
+  footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);
+    font-size:12px;color:var(--dim);line-height:1.85}
+  footer code{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+
+  @media (max-width:760px){
+    .grid{grid-template-columns:1fr}
+    h1{font-size:28px}
+    body{padding:36px 18px}
+  }
+</style>
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back-home" href="../../#load" title="返回 Pilot Phil 主页">← 主页</a>
+
+  <div class="kicker">Non-smooth Contact Dynamics</div>
+  <h1>船冰接触力学 · 交互演示</h1>
+  <p class="lead">
+    基于非光滑离散元方法，用一颗<b>半径 0.15 m、质量 1 kg 的球落向地面</b>的最小例子，
+    把"检测到接触之后，冲量怎么算"完整拆开。
+  </p>
+
+  <div class="grid">
+    <a class="card" href="simulation.html">
+      <div class="tag"><i></i>Interactive</div>
+      <h2>一维落地仿真</h2>
+      <p>可单步 / 连续播放的小球落地过程，右侧同步显示一步之内的八步数据流。</p>
+      <ul>
+        <li>穿透量 δ、步内平均力 F、速度 v、位移 y 四条曲线</li>
+        <li>恢复系数 e 与落差 h 可调</li>
+        <li>接触时暂停、静止后停止</li>
+      </ul>
+      <span class="go">进入仿真 →</span>
+    </a>
+
+    <a class="card" href="derivation.html">
+      <div class="tag" style="color:var(--accent)"><i style="background:var(--accent)"></i>Full Derivation</div>
+      <h2>完整公式推导</h2>
+      <p>从牛顿第二定律一路推到 <span style="font-family:var(--mono)">λ = m_eff(1+e)|v⁻|</span>，
+         每一步都不跳。</p>
+      <ul>
+        <li>九个章节 + 符号表 + 常见困惑速查</li>
+        <li>数学基础放在悬浮卡片里，不单独占篇幅</li>
+        <li>全部数字与仿真页对得上</li>
+      </ul>
+      <span class="go">开始阅读 →</span>
+    </a>
+  </div>
+
+  <footer>
+    纯静态页面，无需构建 · 公式由 <code>KaTeX</code> 本地渲染（随附在 <code>katex/</code>，离线可用）<br>
+    配色与排版参考 Claude 的暖色系
+  </footer>
+
+</div>
+</body>
+</html>

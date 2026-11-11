@@ -1,0 +1,929 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>非光滑接触｜小球落地的反弹冲量怎么算</title>
+<style>
+  :root{
+    --bg:#faf9f5; --panel:#ffffff; --panel2:#f3f0e7; --line:#e7e2d4; --line2:#d6cfbd;
+    --ink:#262521; --muted:#6e6a5f; --dim:#9a9484;
+    --cyan:#c15f3c; --amber:#c15f3c; --rose:#b4513f; --green:#6e7f55; --violet:#7d5a6b; --sage:#4a6b5e;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    display:flex;flex-direction:column;overflow:hidden;
+    background-image:radial-gradient(1200px 600px at 12% -10%,rgba(193,95,60,.09),transparent 62%),
+                     radial-gradient(900px 500px at 96% 0%,rgba(168,129,60,.08),transparent 58%);
+  }
+  /* ---------- header ---------- */
+  header{padding:12px 20px 6px;flex:0 0 auto}
+  .brand{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  .brand i{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px rgba(193,95,60,.5);display:block}
+  h1{margin:4px 0 3px;font-size:19px;font-weight:650;letter-spacing:-.01em}
+  .lede{margin:0;max-width:940px;font-size:12.5px;line-height:1.6;color:var(--muted)}
+  .lede b{color:var(--ink);font-weight:600}
+
+  /* ---------- 3 列 ---------- */
+  main{
+    flex:1 1 auto;min-height:0;display:grid;gap:14px;padding:6px 20px 16px;
+    grid-template-columns:minmax(280px,.92fr) minmax(240px,.68fr) minmax(430px,1.5fr);
+  }
+  .col{min-width:0;min-height:0;display:flex;flex-direction:column;gap:9px}
+
+  /* ---------- 列 1 ---------- */
+  .viewport{position:relative;flex:1 1 auto;min-height:200px;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    background:radial-gradient(120% 90% at 50% 0%,#fffefb 0%,#f7f3ea 55%,#f0ebdf 100%)}
+  .viewport::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:linear-gradient(rgba(80,70,50,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(80,70,50,.055) 1px,transparent 1px);
+    background-size:32px 32px;mask-image:linear-gradient(#000 62%,transparent)}
+  #view{display:block;width:100%;height:100%}
+  .bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  button{font-family:inherit;font-size:12px;padding:8px 12px;border-radius:9px;border:1px solid var(--line2);
+    background:#fffdf8;color:var(--ink);cursor:pointer;transition:.16s;display:inline-flex;align-items:center;gap:6px}
+  button:hover{border-color:#c9b79c;background:#f6f2e8}
+  button:active{transform:translateY(1px)}
+  button.primary{background:linear-gradient(180deg,#d97757,#c15f3c);border-color:#b0522f;color:#fff9f4}
+  button.primary:hover{background:linear-gradient(180deg,#c8693f,#b0522f)}
+  button.ghost{background:transparent;color:var(--muted)}
+  button kbd{font-family:var(--mono);font-size:9px;padding:1px 4px;border-radius:4px;border:1px solid var(--line2);color:var(--dim)}
+  .opts{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+  .sl{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--muted)}
+  .sl b{font-family:var(--mono);color:var(--ink);font-size:11px;min-width:32px;text-align:right;font-variant-numeric:tabular-nums}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:84px;height:3px;border-radius:3px;background:#e4decd;outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;
+    background:var(--cyan);border:2px solid #fffdf8;box-shadow:0 0 0 1px var(--cyan),0 0 10px rgba(193,95,60,.35);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--cyan);border:2px solid #fffdf8;cursor:pointer}
+  .chk{display:inline-flex;align-items:center;gap:6px;margin-left:3px;font-size:11px;color:var(--muted);cursor:pointer;user-select:none}
+  .chk input{-webkit-appearance:none;appearance:none;width:15px;height:15px;border-radius:4px;border:1px solid var(--line2);
+    background:#f7f4ea;cursor:pointer;position:relative;transition:.15s;flex:0 0 auto}
+  .chk input:hover{border-color:#c9b79c}
+  .chk input:checked{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 8px rgba(193,95,60,.30)}
+  .hrow{display:flex;align-items:flex-start;gap:16px}
+  .hmain{flex:1;min-width:0}
+  .btn-derive{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;
+    padding:9px 16px;border-radius:10px;text-decoration:none;white-space:nowrap;
+    border:1px solid #b0522f;color:#fff9f4;font-weight:600;transition:.16s;
+    background:linear-gradient(180deg,#d97757,#c15f3c);
+    box-shadow:0 6px 18px -10px rgba(193,95,60,.9);flex:0 0 auto}
+  .btn-derive:hover{background:linear-gradient(180deg,#c8693f,#b0522f);transform:translateY(-1px)}
+  .btn-derive .ic{font-family:var(--mono);font-size:14px;font-weight:400;opacity:.9}
+  .chk input:checked::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;
+    border:2px solid #fffdf8;border-top:0;border-left:0;transform:rotate(42deg)}
+
+  /* ---------- 列 2：三张曲线 ---------- */
+  .chart{display:flex;flex-direction:column;flex:1 1 0;min-height:0;border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
+  .chart header{display:flex;align-items:baseline;gap:8px;padding:7px 11px 3px;flex:0 0 auto}
+  .chart header b{font-size:11.5px;font-weight:600}
+  .chart header i{font-style:normal;font-family:var(--mono);font-size:10px;color:var(--dim)}
+  .chart header u{text-decoration:none;margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--cyan);font-variant-numeric:tabular-nums}
+  .chart canvas{display:block;width:100%;flex:1 1 auto;min-height:0}
+  .mgkey{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9.5px;color:#a8813c;white-space:nowrap}
+  .mgkey::before{content:"";width:13px;height:0;border-top:1px dashed #a8813c}
+  .readout{border:1px solid var(--line);border-radius:11px;background:#fbf9f2;padding:8px 11px;flex:0 0 auto}
+  .readout h4{margin:0 0 4px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+  .readout .big{font-family:var(--mono);font-size:18px;color:var(--amber);font-variant-numeric:tabular-nums}
+  .readout .big span{font-size:10.5px;color:var(--dim);margin-left:4px}
+  .readout p{margin:4px 0 0;font-size:10px;line-height:1.5;color:var(--muted)}
+  .readout code{font-family:var(--mono);font-size:10px;color:#4a423a}
+
+  /* ---------- 列 3：流程 ---------- */
+  aside{min-height:0;overflow:auto;padding-right:4px;scrollbar-width:thin;scrollbar-color:#d6cfbd transparent}
+  aside::-webkit-scrollbar{width:6px}
+  aside::-webkit-scrollbar-thumb{background:#d6cfbd;border-radius:3px}
+  .fh{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 8px}
+  .fh h2{margin:0;font-size:14px;font-weight:650;letter-spacing:.02em}
+  .fh em{font-style:normal;font-size:10.5px;color:var(--dim);font-family:var(--mono)}
+  .step{border:1px solid var(--line);border-radius:11px;background:var(--panel);
+    padding:9px 13px;transition:.22s;display:grid;align-items:center;
+    grid-template-columns:minmax(150px,.60fr) minmax(0,1fr);gap:4px 14px}
+  .step.ran{border-color:#d9d2bf;background:#fbf9f2}
+  .step.hit{border-color:rgba(193,95,60,.55);background:linear-gradient(180deg,rgba(193,95,60,.09),rgba(193,95,60,.02));
+    box-shadow:0 0 0 1px rgba(193,95,60,.10),0 8px 26px -16px rgba(193,95,60,.5)}
+  .step.out{border-style:dashed}
+  .meta{min-width:0}
+  .row1{display:flex;align-items:center;gap:8px}
+  .no{flex:0 0 auto;width:23px;height:23px;border-radius:7px;border:1px solid var(--line2);background:#f7f4ea;
+    font-family:var(--mono);font-size:11px;line-height:21px;text-align:center;color:var(--dim);transition:.22s}
+  .step.ran .no{color:var(--cyan);border-color:rgba(193,95,60,.5)}
+  .step.hit .no{color:#fff9f4;background:var(--amber);border-color:var(--amber)}
+  .step.out .no{color:var(--green);border-color:rgba(110,127,85,.45);line-height:20px}
+  .ttl{font-size:13.5px;font-weight:600;letter-spacing:.01em;white-space:nowrap}
+  .sym{display:block;font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:3px;line-height:1.35;word-break:break-all}
+  .hint{display:block;font-size:10px;color:var(--dim);margin-top:2px;line-height:1.35}
+  .fml{display:flex;flex-direction:column;gap:2px;min-width:0;padding-left:13px;border-left:1px solid var(--line)}
+  .eq{font-family:var(--mono);font-size:14.5px;color:#3b3830;line-height:1.32;letter-spacing:-.01em}
+  .eq em{font-style:normal;color:var(--violet);font-weight:600}
+  .eq s{text-decoration:none;color:var(--dim);font-size:11px}
+  .num{font-family:var(--mono);font-size:11.5px;color:#b0522f;line-height:1.4;margin-top:3px;padding-top:3px;
+    border-top:1px dashed var(--line2);font-variant-numeric:tabular-nums}
+  .num:empty::before{content:"—";color:#c9c2b2}
+  .flow{display:flex;align-items:center;justify-content:center;margin:0;height:14px;position:relative}
+  .flow::before{content:"";position:absolute;left:50%;width:1px;height:100%;background:linear-gradient(180deg,var(--line2),#ddd6c4)}
+  .flow span{position:relative;font-family:var(--mono);font-size:10px;color:#8a8478;background:var(--bg);padding:1px 6px;border-radius:5px;white-space:nowrap}
+  .note{border:1px solid var(--line);border-radius:11px;padding:10px 13px;margin-top:10px;background:#fbf9f2}
+  .note h3{margin:0 0 6px;font-size:11.5px;font-weight:650;color:var(--amber);letter-spacing:.03em}
+  .note p{margin:0;font-size:11.5px;line-height:1.68;color:var(--muted)}
+  .note p+p{margin-top:7px}
+  .note code{font-family:var(--mono);font-size:11px;color:#4a423a}
+  .note b{color:var(--ink)}
+
+  @media (max-width:1240px){
+    body{overflow:auto}
+    main{grid-template-columns:1fr 1fr}
+    aside{grid-column:1/-1}
+    .viewport{min-height:260px}
+    .chart{min-height:170px}
+  }
+  @media (max-width:820px){
+    main{grid-template-columns:1fr}
+    aside{grid-column:auto}
+  }
+</style>
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+<header>
+  <div class="hrow">
+    <div class="hmain">
+      <div class="brand"><i></i>非光滑离散元 · 一维最小例子</div>
+      <h1>检测到接触之后，冲量怎么算</h1>
+    </div>
+    <a class="btn-derive" href="derivation.html" target="_blank" rel="noopener" title="打开完整公式推导">
+      <span class="ic">∑</span> 查看详细公式推导
+    </a>
+  </div>
+  <p class="lede">Bullet 不用穿透量算弹簧力（那是 smooth DEM 的罚函数法）。它把接触写成<b>速度层</b>的互补条件，用投影 Gauss–Seidel 解出冲量 λ，速度在一步内跳变——这就是「非光滑」。下面用一颗球落地把它拆开。</p>
+</header>
+
+<main>
+  <!-- ============ 列 1 ============ -->
+  <section class="col">
+    <div class="viewport"><canvas id="view"></canvas></div>
+    <div class="opts">
+      <label class="sl">恢复系数 e <input type="range" id="sl-e" min="0" max="2" step="0.05" value="0.6"><b id="v-e">0.60</b></label>
+      <label class="sl">落差 h <input type="range" id="sl-h" min="0.45" max="1.35" step="0.05" value="1.00"><b id="v-h">1.00</b></label>
+    </div>
+    <div class="bar">
+      <button class="primary" id="btn-step" title="单步（→）">单步</button>
+      <button id="btn-play" title="连续 / 暂停（空格）">连续</button>
+      <button class="ghost" id="btn-reset" title="重置（R）">重置</button>
+      <label class="chk"><input type="checkbox" id="chk-pause">接触时暂停</label>
+      <label class="chk"><input type="checkbox" id="chk-stop" checked>静止后停止</label>
+    </div>  </section>
+
+  <!-- ============ 列 2 ============ -->
+  <section class="col">
+    <div class="chart">
+      <header><b>穿透量 δ(t)</b><i>mm</i><u id="u-pen">0.0 mm</u></header>
+      <canvas id="chart-pen"></canvas>
+    </div>
+    <div class="chart">
+      <header><b>力 F(t)</b><i>λ/Δt → N</i><span class="mgkey">mg = 9.81</span><u id="u-f">—</u></header>
+      <canvas id="chart-f"></canvas>
+    </div>
+    <div class="chart">
+      <header><b>速度 v(t)</b><i>m/s</i><u id="u-v">0.00</u></header>
+      <canvas id="chart-v"></canvas>
+    </div>
+    <div class="chart">
+      <header><b>位移 y(t)</b><i>m · 球心</i><u id="u-y">0.00</u></header>
+      <canvas id="chart-y"></canvas>
+    </div>
+    <div class="readout">
+      <h4>本步输出</h4>
+      <div class="big"><span id="ro-f">—</span><span>N</span></div>
+      <p>接触力不是解出来的量，是冲量除步长：<code>F = λ / Δt</code>，<code>Δt = 1/60 s</code>。静止时退化为 <code>mg = 9.81 N</code>。</p>
+    </div>
+  </section>
+
+  <!-- ============ 列 3 ============ -->
+  <aside>
+    <div class="fh"><h2>一步之内的数据流</h2><em id="hdr-phase">待运行</em></div>
+
+    <div class="step" data-phase="predict">
+      <div class="meta">
+        <div class="row1"><div class="no">01</div><div class="ttl">前推未约束运动</div></div>
+        <code class="sym">predictUnconstraintMotion()</code>
+      </div>
+      <div class="fml">
+        <div class="eq">v ← v + g·Δt　　y ← y + v·Δt</div>
+        <div class="num" data-n="predict">—</div>
+      </div>
+    </div>
+    <div class="flow"><span>v, y</span></div>
+
+    <div class="step" data-phase="detect">
+      <div class="meta">
+        <div class="row1"><div class="no">02</div><div class="ttl">检测接触</div></div>
+        <code class="sym">broadphase → narrowphase</code>
+      </div>
+      <div class="fml">
+        <div class="eq">δ = max(0, <em>r</em> − y)</div>
+        <div class="num" data-n="delta">—</div>
+      </div>
+    </div>
+    <div class="flow"><span>δ</span></div>
+
+    <div class="step" data-phase="contact">
+      <div class="meta">
+        <div class="row1"><div class="no">03</div><div class="ttl">取接触关键信息</div></div>
+        <code class="sym">btManifoldPoint</code>
+        <span class="hint">这一步不是公式，是把接触点里的量逐个读出来</span>
+      </div>
+      <div class="fml">
+        <div class="eq">n = (0, 1, 0)　<s>法向，竖直向上</s></div>
+        <div class="eq">δ = <span data-n="d2">—</span>　<s>穿透深度</s></div>
+        <div class="eq">v<sub>n</sub> = v·n = <span data-n="vn2">—</span>　<s>负 = 正在接近</s></div>
+        <div class="num" data-n="e">—</div>
+      </div>
+    </div>
+    <div class="flow"><span>n, v_n, e, m</span></div>
+
+    <div class="step" data-phase="assemble">
+      <div class="meta">
+        <div class="row1"><div class="no">04</div><div class="ttl">装配约束行</div></div>
+        <code class="sym">convertContact()</code>
+        <span class="hint">J = 约束雅可比，Bullet 存在 m_contactNormal1 与 m_relpos1CrossNormal</span>
+      </div>
+      <div class="fml">
+        <div class="eq">J = [n, r×n]　<s>1×6：6 维体速度压成 1 个法向速度</s></div>
+        <div class="eq">v<sub>n</sub> = J·[v; ω] = n·v + (r×n)·ω　<s>球心 ⇒ r=0 ⇒ v<sub>n</sub>=n·v</s></div>
+        <div class="eq">m<sub>eff</sub> = (J M⁻¹ Jᵀ)⁻¹　<s>M = diag(m·I, I) 为 6×6 质量阵</s></div>
+        <div class="eq">　= 1 / ( |n|²/<em>m</em> + (r×n)ᵀI⁻¹(r×n) ) = <em>m</em></div>
+        <div class="eq">rhs = Δv<sub>n</sub> = v<sub>n</sub>⁺ − v<sub>n</sub>⁻ = −(1+e)·v<sub>n</sub></div>
+        <div class="num" data-n="rhs">—</div>
+      </div>
+    </div>
+    <div class="flow"><span>rhs, m_eff</span></div>
+
+    <div class="step" data-phase="solve">
+      <div class="meta">
+        <div class="row1"><div class="no">05</div><div class="ttl">迭代求冲量</div></div>
+        <code class="sym">resolveSingleConstraintRowLowerLimit()</code>
+        <span class="hint">冲量 = 等效质量 × 要补的速度增量</span>
+      </div>
+      <div class="fml">
+        <div class="eq">λ = m<sub>eff</sub> · rhs　<s>[kg]·[m/s] = [N·s]</s></div>
+        <div class="eq">　= <em>m</em>(1+e)|v<sub>n</sub>⁻|　<s>v_n &lt; 0，取绝对值</s></div>
+        <div class="eq">λ ← max(0, λ)　<s>只推不拉，本步为正不截断</s></div>
+        <div class="num" data-n="lambda">—</div>
+      </div>
+    </div>
+    <div class="flow"><span>λ</span></div>
+
+    <div class="step" data-phase="write">
+      <div class="meta">
+        <div class="row1"><div class="no">06</div><div class="ttl">写回体速度</div></div>
+        <code class="sym">solveGroupCacheFriendlyFinish()</code>
+        <span class="hint">求解器不直接赋值速度，它只累加冲量</span>
+      </div>
+      <div class="fml">
+        <div class="eq">v⁺ = v⁻ + λ·n / <em>m</em></div>
+        <div class="eq">⇒ v⁺ = −e·v⁻　<s>单接触、球心时才恰好命中目标</s></div>
+        <div class="num" data-n="vpost">—</div>
+      </div>
+    </div>
+    <div class="flow"><span>v⁺, δ</span></div>
+
+    <div class="step" data-phase="correct">
+      <div class="meta">
+        <div class="row1"><div class="no">07</div><div class="ttl">穿透修正</div></div>
+        <code class="sym">split impulse</code>
+        <span class="hint">只改位置，不注入能量</span>
+      </div>
+      <div class="fml">
+        <div class="eq">y ← <em>r</em></div>
+        <div class="num" data-n="yfix">—</div>
+      </div>
+    </div>
+    <div class="flow"><span>λ, Δt</span></div>
+
+    <div class="step out" data-phase="force">
+      <div class="meta">
+        <div class="row1"><div class="no">08</div><div class="ttl">输出：换成力</div></div>
+        <code class="sym">不是求解器的一步</code>
+        <span class="hint">反弹 / 静止同一式子</span>
+      </div>
+      <div class="fml">
+        <div class="eq">F = λ / Δt　<s>静止时 →</s> <em>m·g</em></div>
+        <div class="num" data-n="force">—</div>
+      </div>
+    </div>
+
+    <div class="note">
+      <h3>目标速度已知，为什么还要走冲量这一步</h3>
+      <p>目标速度只用来定 <code>rhs</code>，求解器并不会直接给速度赋值。真正改速度的是 <code>v += λ/m</code>，原因有三：</p>
+      <p>① 多接触时各行的目标互相牵制，一轮不可能全部命中，只能靠累加冲量一轮轮逼近；<br>
+         ② 冲量同时改线速度和角速度（偏心接触会让球转起来），直接赋速度做不到；<br>
+         ③ λ 要回存到接触点上，下一步做热启动。<br>
+         本例只有一个球心接触、且无摩擦，才会出现 <code>v⁺ = −e·v⁻</code> 这种"恰好命中"的结果。</p>
+    </div>
+
+    <div class="note">
+      <h3>为什么这算「非光滑」</h3>
+      <p>解的是速度层的互补条件：<code>λ ≥ 0</code>、<code>v<sub>n</sub>⁺ ≥ 0</code>、<code>λ·v<sub>n</sub>⁺ = 0</code>。λ 是<b>冲量</b>不是力，速度一步之内跳变，轨迹在接触点不可导——所以叫 non-smooth DEM。</p>
+      <p>同一个公式两个结果：反弹时 <code>λ = m(1+e)|v⁻|</code>；停住后每步 <code>λ = m·g·Δt</code>，除以 Δt 正好是 <code>mg</code>。冲量层面的配平，换成力就是「支撑力 = 重力」。</p>
+      <p style="color:#9a9484">三维里还多出 <code>r×n</code> 的转动项、两条正交切向摩擦行，以及把上一步 λ 当初值的热启动。</p>
+    </div>
+  </aside>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const P = { m: 1.0, r: 0.15, g: 9.81, dt: 1 / 60, e: 0.60, mu: 0.50, restThr: 0.2 };
+
+  const view = document.getElementById("view");
+  const cvPen = document.getElementById("chart-pen");
+  const cvF = document.getElementById("chart-f");
+  const cvV = document.getElementById("chart-v");
+  const cvY = document.getElementById("chart-y");
+  const chkStop = document.getElementById("chk-stop");
+  const chkPause = document.getElementById("chk-pause");
+
+  let S, hist, last, playing = false, acc = 0, lastTime = 0;
+  let dpr = window.devicePixelRatio || 1;
+  let WIN = { min: -0.08, max: 1.30 };
+
+  // ---------------- 状态 ----------------
+  function reset() {
+    pause();
+    const h = parseFloat(document.getElementById("sl-h").value);
+    P.h = h;
+    WIN = { min: -0.08, max: Math.max(0.9, h + P.r + 0.12) };
+    S = {
+      t: 0, y: h + P.r, v: 0,
+      lambda: 0, force: 0, delta: 0, pen: 0,
+      impacts: 0, apex: h + P.r, lastApex: null,
+      inContact: false, restSteps: 0, settled: false,
+      flashAt: -10, flashLambda: 0
+    };
+    hist = []; last = null;
+    refresh();
+    hdrPhase.textContent = "待运行";
+  }
+
+  // ---------------- 单个子步 ----------------
+  function substep() {
+    const dt = P.dt;
+    const rec = { ran: ["predict"], contact: false, newContact: false };
+    rec.vBefore = S.v; rec.yBefore = S.y;
+
+    // 01 前推
+    S.v += -P.g * dt;
+    S.y += S.v * dt;
+    rec.v = S.v; rec.y = S.y; rec.ran.push("detect");
+
+    // 02 检测：penRaw 是几何量（球在地面上方时为负），δ 取 max(0, ·) 才符合定义
+    const penRaw = P.r - S.y;
+    const pen = Math.max(0, penRaw);
+    const wasInContact = S.inContact;
+    S.pen = pen; rec.pen = pen;
+    S.lambda = 0; S.force = 0;
+
+    if (penRaw > 0) {
+      const vn = S.v;
+      const eEff = (vn < -P.restThr) ? P.e : 0;
+      const mEff = P.m, rhs = -(1 + eEff) * vn;
+      const lambda = Math.max(0, rhs * mEff);
+
+      rec.contact = true;
+      rec.newContact = !wasInContact;
+      rec.ran.push("contact", "assemble", "solve", "write", "correct", "force");
+      rec.vn = vn; rec.eEff = eEff; rec.mEff = mEff; rec.rhs = rhs; rec.lambda = lambda;
+
+      S.v += lambda / P.m;
+      rec.vpost = S.v;
+      const apexNext = P.r + (S.v * S.v) / (2 * P.g);
+      if (apexNext + P.r + 0.15 > WIN.max) WIN.max = apexNext + P.r + 0.15;
+
+      S.y = P.r;
+      S.lambda = lambda;
+      S.force = lambda / dt;
+      rec.force = S.force;
+
+      if (eEff > 0) { S.impacts += 1; S.lastApex = S.apex; S.apex = S.y; }
+      S.flashAt = S.t + dt;
+      S.flashLambda = lambda;
+      S.delta = pen;
+    } else {
+      S.delta = 0;
+      S.apex = Math.max(S.apex, S.y);
+    }
+
+    // 静止判定：在接触中且速度归零，连续若干步认为停稳
+    if (pen > 0 && Math.abs(S.v) < 1e-4) S.restSteps++; else S.restSteps = 0;
+    S.settled = S.restSteps >= 6;
+    S.inContact = pen > 0;
+
+    S.t += dt;
+    hist.push({ t: S.t, v: S.v, f: S.force, y: S.y, lambda: S.lambda, pen: S.pen });
+    if (hist.length > 3000) hist.shift();
+    last = rec;
+    return rec;
+  }
+
+  // ---------------- 循环 ----------------
+  function tick(now) {
+    if (!playing) return;
+    if (!lastTime) lastTime = now;
+    let real = (now - lastTime) / 1000; lastTime = now;
+    acc += Math.min(real, 0.12);
+
+    let hit = false;
+    let guard = 0;
+    while (acc >= P.dt && guard++ < 12) {
+      const rec = substep();
+      acc -= P.dt;
+      if (rec.newContact) { hit = true; acc = 0; break; }
+    }
+    refresh();
+
+    if (hit && chkPause.checked) { pause("继续"); return; }
+    if (S.settled && chkStop.checked) { pause(); return; }
+    requestAnimationFrame(tick);
+  }
+
+  function setPlayLabel(txt) {
+    document.getElementById("btn-play").textContent = txt;
+  }
+  function play() {
+    if (playing) return;
+    playing = true; lastTime = 0; acc = 0;
+    setPlayLabel("暂停");
+    requestAnimationFrame(tick);
+  }
+  function pause(label) {
+    playing = false;
+    setPlayLabel(label || "连续");
+  }
+  function refresh() { draw(); drawCharts(); readout(); paintFlow(last); }
+
+  // ---------------- 读数 ----------------
+  const hdrPhase = document.getElementById("hdr-phase");
+  function readout() {
+    const q = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
+    const c = !!(last && last.contact);
+    q("u-f", c ? S.force.toFixed(1) + " N" : "—");
+    q("u-v", S.v.toFixed(2) + " m/s");
+    q("u-y", S.y.toFixed(3) + " m");
+    q("u-pen", (S.pen > 0 ? (S.pen * 1000).toFixed(1) : "0.0") + " mm");
+
+    q("ro-f", c ? S.force.toFixed(1) : "—");
+  }
+  // ---------------- 流程高亮 + 数值代入 ----------------
+  const stepsEls = Array.from(document.querySelectorAll(".step"));
+  function paintFlow(rec) {
+    const ran = rec ? rec.ran : [];
+    stepsEls.forEach(el => {
+      const ph = el.dataset.phase;
+      el.classList.toggle("ran", ran.includes(ph));
+      el.classList.toggle("hit", !!(rec && rec.contact && !el.classList.contains("out") &&
+        ["contact", "assemble", "solve", "write", "correct"].includes(ph)));
+    });
+
+    const set = (k, v) => { const el = document.querySelector('[data-v="' + k + '"]'); if (el) el.textContent = v; };
+    const num = (k, v) => { const el = document.querySelector('[data-n="' + k + '"]'); if (el) el.textContent = v; };
+
+    if (!rec) {
+      ["v","delta","vn","rhs","lambda","vpost","yfix","force"].forEach(k => set(k, "—"));
+      ["predict","delta","vn","rhs","lambda","vpost","yfix","force"].forEach(k => num(k, ""));
+      return;
+    }
+
+    const gdt = P.g * P.dt;
+    set("v", rec.v.toFixed(3) + " m/s");
+    num("predict", "v = " + rec.vBefore.toFixed(3) + " − " + gdt.toFixed(3) + " = " + rec.v.toFixed(3));
+
+    if (rec.contact) {
+      set("delta", (rec.pen * 1000).toFixed(2) + " mm");
+      num("delta", "δ = " + P.r.toFixed(3) + " − " + rec.y.toFixed(3) + " = " + (rec.pen * 1000).toFixed(1) + " mm");
+
+      set("vn", rec.vn.toFixed(3) + " m/s");
+      num("d2", (rec.pen * 1000).toFixed(1) + " mm");
+      num("vn2", rec.vn.toFixed(3) + " m/s");
+      const lowHit = Math.abs(rec.vn) < P.restThr;
+      num("e", "本步 e = " + rec.eEff.toFixed(2) + "　"
+             + (lowHit ? "因为 |v_n| = " + Math.abs(rec.vn).toFixed(3) + " < 0.2 m/s，关掉恢复"
+                       : "因为 |v_n| = " + Math.abs(rec.vn).toFixed(3) + " ≥ 0.2 m/s"));
+
+      set("rhs", rec.rhs.toFixed(3));
+      num("rhs", "rhs = −(1 + " + rec.eEff.toFixed(2) + ") × (" + rec.vn.toFixed(3) + ") = " + rec.rhs.toFixed(3) + " m/s");
+
+      set("lambda", rec.lambda.toFixed(3) + " N·s");
+      num("lambda", "λ = m_eff × rhs = " + rec.mEff.toFixed(2) + " × " + rec.rhs.toFixed(3)
+                  + " = " + rec.lambda.toFixed(3) + " N·s");
+
+      set("vpost", rec.vpost.toFixed(3) + " m/s");
+      num("vpost", "v⁺ = " + rec.vn.toFixed(3) + " + " + rec.lambda.toFixed(3) + " / " + rec.mEff.toFixed(2)
+                  + " = " + rec.vpost.toFixed(3) + " m/s");
+
+      set("yfix", "y = " + P.r.toFixed(3) + " m");
+      num("yfix", "y = " + P.r.toFixed(3) + " m　（修正前 " + (P.r - rec.pen).toFixed(3) + "）");
+
+      set("force", rec.force.toFixed(1) + " N");
+      num("force", "F = " + rec.lambda.toFixed(3) + " / " + P.dt.toFixed(4) + " = " + rec.force.toFixed(1) + " N");
+    } else {
+      set("delta", "无接触");
+      num("delta", "δ = max(0, " + P.r.toFixed(3) + " − " + rec.y.toFixed(3) + ") = 0");
+      ["vn","rhs","lambda","vpost","yfix","force"].forEach(k => { set(k, "—"); num(k, ""); });
+      num("d2", ""); num("vn2", ""); num("e", "");
+    }
+    hdrPhase.textContent = rec.contact ? "接触步" : "自由步";
+  }
+
+  // ---------------- canvas 工具 ----------------
+  function fit(canvas) {
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(1, Math.round(rect.width));
+    const h = Math.max(1, Math.round(rect.height));
+    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+      canvas.width = w * dpr; canvas.height = h * dpr;
+    }
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx, w, h };
+  }
+
+  // ---------------- 仿真视图 ----------------
+  function draw() {
+    const { ctx, w, h } = fit(view);
+    ctx.clearRect(0, 0, w, h);
+
+    const padT = 22, padB = 40, padL = 48, padR = 30;
+    const plotH = h - padT - padB;
+    const range = WIN.max - WIN.min;
+    const yToPx = y => padT + (1 - (y - WIN.min) / range) * plotH;
+    const gy = yToPx(0);
+    const rPx = (P.r / range) * plotH;
+    const cx = padL + (w - padL - padR) / 2;
+
+    // 标尺
+    ctx.strokeStyle = "rgba(120,105,80,.22)";
+    ctx.fillStyle = "rgba(110,100,82,.7)";
+    ctx.font = "9px ui-monospace,monospace";
+    ctx.textAlign = "right";
+    const stepM = range > 1.4 ? 0.5 : 0.25;
+    for (let m = 0; m <= WIN.max; m += stepM) {
+      const py = yToPx(m);
+      if (py < padT + 6 || m < 1e-6) continue;
+      ctx.beginPath(); ctx.moveTo(padL - 10, py); ctx.lineTo(padL - 4, py); ctx.stroke();
+      ctx.fillText(m.toFixed(2), padL - 14, py + 3);
+    }
+    ctx.fillText("m", padL - 14, padT - 6);
+    ctx.textAlign = "left";
+
+    // 上次弹起高度
+    if (S.lastApex && S.lastApex > P.r + 0.02) {
+      const pa = yToPx(S.lastApex);
+      ctx.setLineDash([4, 5]);
+      ctx.strokeStyle = "rgba(96,116,74,.75)";
+      ctx.beginPath(); ctx.moveTo(cx - rPx * 1.9, pa); ctx.lineTo(cx + rPx * 1.9, pa); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "rgba(90,110,70,.95)";
+      ctx.font = "9px ui-monospace,monospace";
+      ctx.fillText((S.lastApex - P.r).toFixed(2) + " m", cx + rPx * 1.9 + 6, pa + 3);
+    }
+
+    // 地面
+    const grd = ctx.createLinearGradient(0, gy, 0, h);
+    grd.addColorStop(0, "rgba(160,148,125,.16)");
+    grd.addColorStop(1, "rgba(160,148,125,0)");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, gy, w, h - gy);
+    ctx.strokeStyle = "#bdb29a";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(w, gy); ctx.stroke();
+    ctx.strokeStyle = "rgba(150,138,115,.45)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = -40; x < w + 40; x += 13) { ctx.moveTo(x, gy + 1); ctx.lineTo(x - 12, gy + 13); }
+    ctx.stroke();
+    ctx.fillStyle = "rgba(110,100,82,.7)";
+    ctx.font = "9px ui-monospace,monospace";
+    ctx.textAlign = "right";
+    ctx.fillText("地面 · static (m = ∞)", w - 8, gy + 28);
+    ctx.textAlign = "left";
+
+    // 穿透
+    const glow = Math.max(0, 1 - (S.t - S.flashAt) / 0.18);
+    if (S.pen > 0) {
+      const py = yToPx(-S.pen);
+      ctx.fillStyle = "rgba(180,81,63," + (0.22 * Math.max(glow, 0.35)) + ")";
+      ctx.fillRect(cx - rPx, gy, rPx * 2, Math.max(2, py - gy));
+      if (glow > 0.05) {
+        ctx.fillStyle = "rgba(180,81,63,.95)";
+        ctx.font = "9px ui-monospace,monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("δ " + (S.pen * 1000).toFixed(1) + " mm", cx, gy + 26);
+        ctx.textAlign = "left";
+      }
+    }
+
+    // 球
+    const by = yToPx(S.y);
+    if (glow > 0.02) {
+      const g2 = ctx.createRadialGradient(cx, by, rPx * 0.4, cx, by, rPx * (3.0 - glow * 1.2));
+      g2.addColorStop(0, "rgba(193,95,60," + (0.26 * glow) + ")");
+      g2.addColorStop(1, "rgba(193,95,60,0)");
+      ctx.fillStyle = g2;
+      ctx.beginPath(); ctx.arc(cx, by, rPx * 3.2, 0, Math.PI * 2); ctx.fill();
+    }
+    const bg = ctx.createRadialGradient(cx - rPx * 0.35, by - rPx * 0.42, rPx * 0.08, cx, by, rPx);
+    bg.addColorStop(0, "#fbe4d3");
+    bg.addColorStop(0.45, "#dd7f59");
+    bg.addColorStop(1, "#a8492f");
+    ctx.fillStyle = bg;
+    ctx.beginPath(); ctx.arc(cx, by, rPx, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "rgba(255,253,247,.85)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // 速度矢量
+    if (Math.abs(S.v) > 0.04) {
+      const L = Math.max(18, Math.min(plotH * 0.30, Math.abs(S.v) * (plotH * 0.06)));
+      const dir = S.v < 0 ? 1 : -1;
+      const x0 = cx + rPx + 14, y0 = by, y1 = y0 + dir * L;
+      ctx.strokeStyle = S.v < 0 ? "#4a6b5e" : "#6e7f55";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x0, y1); ctx.lineTo(x0 - 4, y1 - dir * 7); ctx.lineTo(x0 + 4, y1 - dir * 7);
+      ctx.closePath(); ctx.fillStyle = ctx.strokeStyle; ctx.fill();
+      ctx.font = "10px ui-monospace,monospace";
+      ctx.fillStyle = "rgba(60,60,52,.85)";
+      ctx.fillText(S.v.toFixed(2), x0 + 7, (y0 + y1) / 2 + 3);
+    }
+
+    // 冲量闪示
+    if (glow > 0.02) {
+      const ringR = rPx * (1.10 + (1 - glow) * 0.95);
+      ctx.strokeStyle = "rgba(193,95,60," + (glow * 0.6) + ")";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(cx, gy, ringR, 0, Math.PI * 2); ctx.stroke();
+
+      const ly = Math.max(padT + 14, by - rPx - 20 - (1 - glow) * 22);
+      ctx.font = "600 11px ui-monospace,monospace";
+      ctx.fillStyle = "rgba(193,95,60," + glow + ")";
+      ctx.textAlign = "center";
+      ctx.fillText("λ = " + S.flashLambda.toFixed(2) + " N·s", cx, ly);
+      ctx.font = "9.5px ui-monospace,monospace";
+      ctx.fillStyle = "rgba(193,95,60," + (glow * 0.8) + ")";
+      ctx.fillText("F = " + (S.flashLambda / P.dt).toFixed(0) + " N", cx, ly + 13);
+      ctx.textAlign = "left";
+    }
+  }
+
+  // ---------------- 曲线 ----------------
+  function windowOf() {
+    const span = Math.min(4, Math.max(1.2, S.t));
+    const t1 = Math.max(S.t, span);
+    return { t0: t1 - span, t1, span };
+  }
+  function timeGrid(t0, t1, span) {
+    const step = span <= 1.3 ? 0.2 : span <= 2.6 ? 0.5 : 1;
+    const start = Math.ceil(t0 / step - 1e-9) * step;
+    const ticks = [];
+    for (let t = start; t <= t1 + 1e-9; t += step) ticks.push(+t.toFixed(4));
+    return { ticks, step };
+  }
+
+  // 统一的坐标轴绘制：左轴 + 底轴 + 两向刻度
+  function drawAxes(ctx, w, base, padL, padR, padT, t0, t1, span, X, yTicks, yOf, yFmt, unit) {
+    ctx.strokeStyle = "rgba(120,105,80,.45)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padL, padT); ctx.lineTo(padL, base);
+    ctx.moveTo(padL, base); ctx.lineTo(w - padR, base);
+    ctx.stroke();
+
+    ctx.font = "9px ui-monospace,monospace";
+    ctx.fillStyle = "rgba(110,100,82,.82)";
+    ctx.textAlign = "right";
+    yTicks.forEach(v => {
+      const y = yOf(v);
+      ctx.strokeStyle = "rgba(120,105,80,.45)";
+      ctx.beginPath(); ctx.moveTo(padL - 4, y); ctx.lineTo(padL, y); ctx.stroke();
+      ctx.fillText(yFmt(v), padL - 7, y + 3);
+    });
+    ctx.textAlign = "left";
+    ctx.fillStyle = "rgba(110,100,82,.6)";
+    ctx.fillText(unit, padL + 2, padT - 5);
+
+    const { ticks, step } = timeGrid(t0, t1, span);
+    ctx.textAlign = "center";
+    ticks.forEach(t => {
+      const x = X(t);
+      ctx.strokeStyle = "rgba(120,105,80,.45)";
+      ctx.beginPath(); ctx.moveTo(x, base); ctx.lineTo(x, base + 4); ctx.stroke();
+      ctx.fillStyle = "rgba(110,100,82,.82)";
+      ctx.fillText(t.toFixed(step < 1 ? 1 : 0), x, base + 15);
+    });
+    ctx.textAlign = "left";
+  }
+
+  function drawPenetration() {
+    const { ctx, w, h } = fit(cvPen);
+    ctx.clearRect(0, 0, w, h);
+    const padL = 40, padR = 14, padT = 14, padB = 22;
+    const boxW = w - padL - padR, boxH = h - padT - padB;
+    const { t0, t1, span } = windowOf();
+    const X = t => padL + ((t - t0) / span) * boxW;
+
+    // 毫米为单位：δ 很小，用 m 会全是 0.03 这种数
+    const penMM = d => Math.max(0, d.pen) * 1000;
+    const peakMM = Math.max(0, ...hist.filter(d => d.t >= t0).map(penMM));
+    // 顶部留 12% 余量，峰值不会贴着轴顶；下界 3mm 让静止时也有刻度可读
+    const pMax = Math.max(3, peakMM * 1.12);
+    const base = padT + boxH;
+    const PY = mm => base - (mm / pMax) * boxH * 0.94;
+
+    drawAxes(ctx, w, base, padL, padR, padT, t0, t1, span, X, [pMax, pMax / 2, 0], PY,
+             v => v.toFixed(pMax < 10 ? 1 : 0), "mm");
+
+    const pts = hist.filter(d => d.t >= t0 - 0.2);
+    if (pts.length > 1) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(padL, padT, boxW, boxH);   // 裁掉窗口外与负值，折线只画在坐标系内
+      ctx.clip();
+      ctx.beginPath();
+      pts.forEach((d, i) => { const x = X(d.t), y = PY(penMM(d)); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+      ctx.strokeStyle = "#b4513f";
+      ctx.lineWidth = 1.6; ctx.lineJoin = "round";
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    const peak = hist.reduce((a, b) => (b.t >= t0 && b.pen > a.pen) ? b : a, { pen: 0 });
+    if (peak.pen > 0) {
+      ctx.fillStyle = "rgba(180,81,63,.95)";
+      ctx.font = "9px ui-monospace,monospace";
+      ctx.textAlign = "right";
+      ctx.fillText("峰值 " + penMM(peak).toFixed(1) + " mm", w - padR, padT + 8);
+      ctx.textAlign = "left";
+    }
+  }
+
+  function drawForce() {
+    const { ctx, w, h } = fit(cvF);
+    ctx.clearRect(0, 0, w, h);
+    const padL = 40, padR = 14, padT = 14, padB = 22;
+    const boxW = w - padL - padR, boxH = h - padT - padB;
+    const { t0, t1, span } = windowOf();
+    const X = t => padL + ((t - t0) / span) * boxW;
+    const fMax = Math.max(12, ...hist.filter(d => d.t >= t0).map(d => d.f));
+    const base = padT + boxH;
+    const FY = f => base - (f / fMax) * boxH * 0.94;
+
+    drawAxes(ctx, w, base, padL, padR, padT, t0, t1, span, X, [fMax, fMax / 2, 0], FY,
+             v => Math.round(v).toString(), "N");
+
+    const pts = hist.filter(d => d.t >= t0 - 0.2);
+    if (pts.length > 1) {
+      ctx.save();
+      ctx.beginPath(); ctx.rect(padL, padT, boxW, boxH); ctx.clip();
+      ctx.beginPath();
+      pts.forEach((d, i) => { const x = X(d.t), y = FY(d.f); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+      ctx.strokeStyle = "rgba(193,95,60,.95)";
+      ctx.lineWidth = 1.6; ctx.lineJoin = "round";
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    const mgY = FY(P.m * P.g);
+    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = "rgba(168,129,60,.75)";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, mgY); ctx.lineTo(w - padR, mgY); ctx.stroke();
+    ctx.setLineDash([]);
+
+    const peak = hist.reduce((a, b) => (b.t >= t0 && b.f > a.f) ? b : a, { f: 0 });
+    if (peak.f > 0) {
+      ctx.fillStyle = "rgba(193,95,60,.95)";
+      ctx.font = "9px ui-monospace,monospace";
+      ctx.textAlign = "right";
+      ctx.fillText("峰值 " + peak.f.toFixed(0) + " N", w - padR, padT + 8);
+      ctx.textAlign = "left";
+    }
+  }
+
+  function drawVelocity() {
+    const { ctx, w, h } = fit(cvV);
+    ctx.clearRect(0, 0, w, h);
+    const padL = 40, padR = 14, padT = 14, padB = 22;
+    const boxW = w - padL - padR, boxH = h - padT - padB;
+    const { t0, t1, span } = windowOf();
+    const X = t => padL + ((t - t0) / span) * boxW;
+    const vAbs = Math.max(1, ...hist.map(d => Math.abs(d.v)));
+    const base = padT + boxH;
+    const VY = v => padT + ((vAbs - v) / (2 * vAbs)) * boxH;
+
+    drawAxes(ctx, w, base, padL, padR, padT, t0, t1, span, X,
+             [vAbs, vAbs / 2, 0, -vAbs / 2, -vAbs], VY,
+             v => (v > 0.001 ? "+" : v < -0.001 ? "−" : "") + Math.abs(v).toFixed(1), "m/s");
+
+    ctx.setLineDash([3, 4]);
+    ctx.strokeStyle = "rgba(120,105,80,.32)";
+    ctx.beginPath(); ctx.moveTo(padL, VY(0)); ctx.lineTo(w - padR, VY(0)); ctx.stroke();
+    ctx.setLineDash([]);
+
+    const pts = hist.filter(d => d.t >= t0 - 0.2);
+    if (pts.length > 1) {
+      ctx.save();
+      ctx.beginPath(); ctx.rect(padL, padT, boxW, boxH); ctx.clip();
+      ctx.beginPath();
+      pts.forEach((d, i) => { const x = X(d.t), y = VY(d.v); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+      ctx.strokeStyle = "#4a6b5e"; ctx.lineWidth = 1.8; ctx.lineJoin = "round"; ctx.stroke();
+      const p = pts[pts.length - 1];
+      ctx.fillStyle = "#7a9a8c";
+      ctx.beginPath(); ctx.arc(X(p.t), VY(p.v), 2.8, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function drawDisplacement() {
+    const { ctx, w, h } = fit(cvY);
+    ctx.clearRect(0, 0, w, h);
+    const padL = 40, padR = 14, padT = 14, padB = 22;
+    const boxW = w - padL - padR, boxH = h - padT - padB;
+    const { t0, t1, span } = windowOf();
+    const X = t => padL + ((t - t0) / span) * boxW;
+    const yMax = Math.max(1.1, WIN.max);
+    const base = padT + boxH;
+    const YY = y => base - (y / yMax) * boxH * 0.94;
+
+    drawAxes(ctx, w, base, padL, padR, padT, t0, t1, span, X,
+             [yMax, yMax / 2, 0], YY, v => v.toFixed(2), "m");
+
+    // 地面高度参考线
+    const gyLine = YY(P.r);
+    ctx.setLineDash([3, 4]);
+    ctx.strokeStyle = "rgba(120,105,80,.32)";
+    ctx.beginPath(); ctx.moveTo(padL, gyLine); ctx.lineTo(w - padR, gyLine); ctx.stroke();
+    ctx.setLineDash([]);
+
+    const pts = hist.filter(d => d.t >= t0 - 0.2);
+    if (pts.length > 1) {
+      ctx.save();
+      ctx.beginPath(); ctx.rect(padL, padT, boxW, boxH); ctx.clip();
+      ctx.beginPath();
+      pts.forEach((d, i) => { const x = X(d.t), y = YY(d.y); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+      ctx.strokeStyle = "#a8813c"; ctx.lineWidth = 1.8; ctx.lineJoin = "round"; ctx.stroke();
+      const p = pts[pts.length - 1];
+      ctx.fillStyle = "#c8a86a";
+      ctx.beginPath(); ctx.arc(X(p.t), YY(p.y), 2.8, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function drawCharts() { drawPenetration(); drawForce(); drawVelocity(); drawDisplacement(); }
+
+  // ---------------- 控件 ----------------
+  document.getElementById("btn-step").addEventListener("click", () => {
+    pause(); substep(); refresh();
+  });
+  document.getElementById("btn-play").addEventListener("click", () => playing ? pause() : play());
+  document.getElementById("btn-reset").addEventListener("click", reset);
+
+  const slE = document.getElementById("sl-e");
+  slE.addEventListener("input", () => {
+    P.e = parseFloat(slE.value);
+    document.getElementById("v-e").textContent = P.e.toFixed(2);
+  });
+  const slH = document.getElementById("sl-h");
+  slH.addEventListener("input", () => {
+    document.getElementById("v-h").textContent = parseFloat(slH.value).toFixed(2);
+    reset();
+  });
+
+  window.addEventListener("keydown", ev => {
+    if (ev.code === "Space") { ev.preventDefault(); playing ? pause() : play(); }
+    else if (ev.code === "ArrowRight") { ev.preventDefault(); document.getElementById("btn-step").click(); }
+    else if (ev.key === "r" || ev.key === "R") reset();
+  });
+  window.addEventListener("resize", () => { dpr = window.devicePixelRatio || 1; draw(); drawCharts(); });
+
+  // 启动
+  reset();
+  const qs = new URLSearchParams(location.search);
+  const qsE = parseFloat(qs.get("e"));
+  if (!isNaN(qsE)) {
+    P.e = Math.min(2, Math.max(0, qsE));
+    slE.value = String(P.e);
+    document.getElementById("v-e").textContent = P.e.toFixed(2);
+  }
+  const pre = Math.max(0, Math.min(6000, parseInt(qs.get("step") || "", 10) || 26));
+  for (let i = 0; i < pre; i++) substep();
+  refresh();
+})();
+</script>
+</body>
+</html>

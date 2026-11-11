@@ -20,6 +20,11 @@
   - 在线：<https://pilotphil.github.io/load-forecast/collision/>
   - 源码：与本目录相同（纯静态，无构建步骤）
 
+- [船冰接触力学](ndem/) —— 非光滑接触动力学演示。一维小球落地仿真 + 完整冲量推导长文，KaTeX 公式本地渲染。
+
+  - 在线：<https://pilotphil.github.io/load-forecast/ndem/>
+  - 源码：与本目录相同（纯静态，无构建步骤）
+
 ## 重新构建
 
 ```bash
@@ -50,3 +55,9 @@ pnpm --filter @ccm/web build
 
 纯静态部署，没有构建步骤：`index.html` + `styles.css` + `src/*.js`。
 从原项目复制时未改动检测、渲染和界面逻辑，只在顶栏加了「← 主页」返回链接。
+
+
+## 船冰接触力学
+
+纯静态小站，没有构建步骤：入口 `index.html` + `simulation.html` + `derivation.html` + 本地 `katex/`。
+从原项目复制时未改动仿真、推导和界面逻辑，只在入口页加了「← 主页」返回链接。

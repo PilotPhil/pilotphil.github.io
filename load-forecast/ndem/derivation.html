@@ -1,0 +1,1145 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>接触冲量 · 完整推导</title>
+<link rel="stylesheet" href="katex/katex.min.css">
+<style>
+  :root{
+    --bg:#faf9f5; --panel:#ffffff; --panel2:#f5f2e9; --line:#e7e2d4; --line2:#d6cfbd;
+    --ink:#262521; --muted:#6e6a5f; --dim:#9a9484;
+    --accent:#c15f3c; --ochre:#a8813c; --sage:#4a6b5e; --olive:#6e7f55; --plum:#7d5a6b;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.7;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(1100px 520px at 10% -12%,rgba(193,95,60,.06),transparent 60%),
+                     radial-gradient(900px 460px at 96% 0%,rgba(168,129,60,.05),transparent 58%);
+    background-attachment:fixed;
+  }
+
+  /* ---------- 顶部进度条 ---------- */
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;
+    background:linear-gradient(90deg,#d97757,#c15f3c);transition:width .1s linear}
+
+  /* ---------- 顶栏 ---------- */
+  header.top{
+    position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;
+    padding:11px 22px;border-bottom:1px solid var(--line);
+    background:rgba(250,249,245,.88);backdrop-filter:blur(10px);
+  }
+  .brand{display:flex;align-items:center;gap:8px;font-size:10.5px;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--dim)}
+  .brand i{width:7px;height:7px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 9px rgba(193,95,60,.55);display:block}
+  header.top h1{margin:0;font-size:13.5px;font-weight:650;letter-spacing:.01em}
+  .spacer{flex:1}
+  .btn{font-family:inherit;font-size:12px;padding:7px 13px;border-radius:8px;border:1px solid var(--line2);
+    background:#fffdf8;color:var(--ink);cursor:pointer;transition:.15s;text-decoration:none;
+    display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{border-color:#c9b79c;background:#f6f2e8}
+  .btn.accent{background:linear-gradient(180deg,#d97757,#c15f3c);border-color:#b0522f;color:#fff9f4}
+  .btn.accent:hover{background:linear-gradient(180deg,#c8693f,#b0522f)}
+
+  /* ---------- 布局 ---------- */
+  .layout{display:flex;gap:40px;max-width:1300px;margin:0 auto;padding:0 24px}
+  main{flex:1;min-width:0;max-width:860px;margin:0 auto;padding:0 0 140px}
+
+  /* ---------- 侧边目录 ---------- */
+  nav.side{width:228px;flex:0 0 228px;padding-top:46px}
+  nav.side .box{position:sticky;top:70px;max-height:calc(100vh - 100px);overflow-y:auto;
+    padding-right:6px;scrollbar-width:thin;scrollbar-color:#d6cfbd transparent}
+  nav.side .box::-webkit-scrollbar{width:5px}
+  nav.side .box::-webkit-scrollbar-thumb{background:#d6cfbd;border-radius:3px}
+  nav.side h4{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+    margin:0 0 10px;font-weight:600}
+  nav.side a{display:block;font-size:12px;color:var(--muted);text-decoration:none;
+    padding:4px 9px;border-radius:6px;border-left:2px solid transparent;transition:.12s;
+    line-height:1.45}
+  nav.side a:hover{color:var(--ink);background:var(--panel2)}
+  nav.side a.on{color:var(--accent);border-left-color:var(--accent);
+    background:rgba(193,95,60,.07);font-weight:600}
+  nav.side a.sub{font-size:11.5px;padding-left:20px;color:var(--dim)}
+
+  /* ---------- 封面 ---------- */
+  .hero{padding:64px 0 52px;border-bottom:1px solid var(--line);margin-bottom:14px}
+  .hero .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--accent);
+    text-transform:uppercase;margin-bottom:14px}
+  .hero h1{font-size:40px;font-weight:700;margin:0 0 16px;letter-spacing:-.025em;line-height:1.15}
+  .hero .lead{font-size:15px;color:var(--muted);margin:0;line-height:1.8;max-width:660px}
+  .hero .big-eq{display:inline-block;background:var(--panel);border:1px solid var(--line2);
+    border-radius:14px;padding:16px 30px;margin-top:26px;
+    box-shadow:0 16px 44px -26px rgba(60,50,35,.4)}
+  .hero .hint{margin-top:22px;font-size:12px;color:var(--dim);line-height:2}
+  .hero .hint kbd{font-family:var(--mono);font-size:10.5px;border:1px solid var(--line2);
+    border-radius:4px;padding:1px 5px;background:#fffdf8}
+
+  /* ---------- 章节 ---------- */
+  .ch{margin-top:70px;scroll-margin-top:74px}
+  .ch:first-of-type{margin-top:34px}
+  .ch-num{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--accent);
+    text-transform:uppercase;margin-bottom:8px}
+  .ch h2{font-size:29px;font-weight:700;margin:0 0 10px;letter-spacing:-.02em;line-height:1.25;
+    padding-bottom:14px;border-bottom:2px solid var(--line)}
+  .ch .ch-lead{font-size:14px;color:var(--muted);margin:0 0 8px;line-height:1.8;max-width:720px}
+  h3{font-size:19px;font-weight:660;margin:46px 0 10px;letter-spacing:-.01em;
+    scroll-margin-top:74px}
+  h3 .n{font-family:var(--mono);font-size:13px;color:var(--accent);margin-right:9px;font-weight:600}
+  p{margin:12px 0;font-size:14.5px;line-height:1.85}
+  p.note-t{font-size:13.5px;color:var(--muted)}
+  strong{font-weight:650}
+  em{font-style:normal;background:linear-gradient(180deg,transparent 62%,rgba(168,129,60,.28) 62%)}
+
+  /* ---------- 公式 ---------- */
+  .eq{background:var(--panel2);border:1px solid var(--line);border-radius:11px;
+    padding:14px 20px;margin:16px 0;overflow-x:auto}
+  .eq .katex-display{margin:0}
+  .eq .katex{font-size:1.32em}
+  .eq-hi{background:linear-gradient(180deg,rgba(193,95,60,.08),rgba(193,95,60,.02));
+    border-color:rgba(193,95,60,.38)}
+  .eq-sm .katex{font-size:1.15em}
+
+  /* ---------- 提示卡 ---------- */
+  .box{border-radius:0 10px 10px 0;padding:13px 17px;margin:18px 0;font-size:14px;line-height:1.8}
+  .box b:first-child{display:block;margin-bottom:5px}
+  .box.note{border-left:3px solid var(--sage);background:rgba(74,107,94,.06)}
+  .box.note b:first-child{color:var(--sage)}
+  .box.warn{border-left:3px solid var(--accent);background:rgba(193,95,60,.06)}
+  .box.warn b:first-child{color:var(--accent)}
+  .box ul{margin:7px 0 0;padding-left:20px}
+  .box li{margin:4px 0}
+  .box .eq{margin:10px 0 4px}
+  .box p{margin:8px 0}
+
+  /* ---------- 卡片 / 表格 ---------- */
+  .cards{display:grid;gap:14px;margin:18px 0}
+  .cards.c2{grid-template-columns:1fr 1fr}
+  .cards.c3{grid-template-columns:1fr 1fr 1fr}
+  .card{border:1px solid var(--line);border-radius:11px;background:var(--panel);padding:14px 17px}
+  .card h4{margin:0 0 7px;font-size:13.5px;font-weight:650}
+  .card p{margin:0;font-size:13px;color:var(--muted);line-height:1.7}
+  .card .big{margin-top:8px;font-family:var(--mono);font-size:14.5px;color:var(--accent)}
+  .card .eq{margin:8px 0 0;padding:9px 13px;background:var(--panel2)}
+  .card .eq .katex{font-size:1.05em}
+
+  table.t{width:100%;border-collapse:collapse;font-size:13.5px;margin:16px 0}
+  table.t th,table.t td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--line)}
+  table.t th{font-weight:650;color:var(--muted);font-size:12px;letter-spacing:.03em;
+    border-bottom:1.5px solid var(--line2);background:rgba(245,242,233,.6)}
+  table.t td.mono{font-family:var(--mono);font-size:13px}
+  table.t tr:hover td{background:rgba(245,242,233,.5)}
+
+  ul.plain{margin:12px 0;padding-left:22px;font-size:14.5px;line-height:1.85}
+  ul.plain li{margin:5px 0}
+
+  /* ---------- 数学悬浮 ---------- */
+  .mh{color:var(--accent);border-bottom:1px dashed rgba(193,95,60,.62);
+    cursor:help;font-weight:550;padding:0 1px;transition:background .12s}
+  .mh:hover{background:rgba(193,95,60,.1)}
+  #tip{position:fixed;z-index:9999;max-width:410px;padding:14px 16px;
+    background:#fffdf8;border:1px solid var(--line2);border-radius:11px;
+    box-shadow:0 16px 44px -16px rgba(60,50,35,.38),0 0 0 1px rgba(255,255,255,.7) inset;
+    font-size:12.5px;line-height:1.7;opacity:0;visibility:hidden;transform:translateY(4px);
+    transition:transform .14s ease;pointer-events:none}
+  #tip.on{opacity:1;visibility:visible;transform:none}
+  #tip .tt{font-weight:680;color:var(--accent);font-size:13px;margin-bottom:7px;
+    letter-spacing:.02em;display:block}
+  #tip .kb{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:8px;
+    padding-top:7px;border-top:1px dashed var(--line2);line-height:1.6}
+  #tip .katex{font-size:1.02em}
+  #tip .eq{background:transparent;border:0;padding:2px 0;margin:4px 0}
+
+  /* ---------- 回到顶部 ---------- */
+  #totop{position:fixed;right:26px;bottom:26px;z-index:55;width:42px;height:42px;
+    border-radius:50%;border:1px solid var(--line2);background:#fffdf8;color:var(--muted);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;
+    box-shadow:0 8px 24px -12px rgba(60,50,35,.4);opacity:0;pointer-events:none;transition:.2s}
+  #totop.on{opacity:1;pointer-events:auto}
+  #totop:hover{color:var(--accent);border-color:#c9b79c}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:1180px){
+    nav.side{display:none}
+    main{max-width:820px}
+  }
+  @media (max-width:860px){
+    .layout{padding:0 16px}
+    .hero h1{font-size:29px}
+    .ch h2{font-size:23px}
+    .cards.c2,.cards.c3{grid-template-columns:1fr}
+    p{font-size:14px}
+    .eq{padding:11px 13px}
+    .eq .katex{font-size:1.12em}
+  }
+  @media print{
+    header.top,nav.side,#progress,#totop{display:none}
+    body{background:#fff}
+  }
+</style>
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="top">
+  <div class="brand"><i></i>完整推导</div>
+  <h1>接触冲量：从牛顿定律到 λ</h1>
+  <div class="spacer"></div>
+  <a class="btn accent" href="simulation.html">← 返回仿真</a>
+</header>
+
+<div class="layout">
+<main>
+
+  <!-- ============ 封面 ============ -->
+  <section class="hero">
+    <div class="kicker">Non-smooth Contact · 一维最小例子</div>
+    <h1>接触冲量是怎么算出来的</h1>
+    <p class="lead">从牛顿第二定律出发，一步一步推到求解器里那行代码。只用一颗半径 0.15 m、质量 1 kg 的球落向地面，所有数字都对得上。</p>
+    <div class="big-eq">$$\lambda = m_{\text{eff}}\,(1+e)\,|v_n^-|$$</div>
+    <p class="hint">
+      <span class="mh" data-m="dot">点乘</span>、<span class="mh" data-m="cross">叉乘</span>、<span class="mh" data-m="mat">矩阵</span> 等
+      <span style="color:var(--dim)">虚线词可以悬浮查看数学基础</span> · 页面右侧有目录
+    </p>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="ch" id="ch1">
+    <div class="ch-num">第 1 章</div>
+    <h2>刚体的运动：6 个自由度</h2>
+    <p class="ch-lead">推导全程在<strong>速度层</strong>进行，先弄清"构型"和"速度"两套描述。</p>
+
+    <h3 id="s1-1"><span class="n">1.1</span>构型 q 与速度 u</h3>
+    <p><strong>构型 $q$</strong> 是完整确定系统几何状态的一组数。三维刚体需要 6 个：3 个位置 + 3 个姿态。</p>
+    <div class="eq">$$q=(x_c,\;y_c,\;z_c,\;\text{姿态})$$</div>
+    <p><strong>速度 $u$</strong> 也是 6 个数：线速度 + 角速度。</p>
+    <div class="eq">$$u=\begin{pmatrix}\bv v\\ \boldsymbol\omega\end{pmatrix}$$</div>
+
+    <div class="box note">
+      <b>本讲义的球退化成了一维</b>
+      球各向同性（转了看不出来），且只上下动，所以 $q=y_c$ 一个数就够。但下面的推导写的是<em>一般形式</em>，随时可以套回一维。
+    </div>
+
+    <div class="box warn">
+      <b>为什么姿态不能直接求导</b>
+      姿态可以用<span class="mh" data-m="euler">欧拉角</span>（3 个数）、<span class="mh" data-m="quat">四元数</span>（4 个数）
+      或<span class="mh" data-m="rotm">旋转矩阵</span>（9 个数）存，三种存法算出的 $\partial C/\partial q$ 完全不同，但物理上应该一样。
+      所以工程上不直接对 $q$ 求导——第 5 章会给出替代方案。
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="ch" id="ch2">
+    <div class="ch-num">第 2 章</div>
+    <h2>从牛顿定律到「冲量」</h2>
+
+    <h3 id="s2-1"><span class="n">2.1</span>冲量：力对时间的累积</h3>
+    <p>碰撞时力极大、时间极短。这个尖峰难算，但它的<span class="mh" data-m="integral">积分</span>（曲线下的面积）是有限且可测的。</p>
+    <div class="eq">$$\boldsymbol\lambda=\int_{t^-}^{t^+}\bv F\,\mathrm dt\qquad[\mathrm{N\cdot s}]$$</div>
+    <p>对牛顿第二定律在碰撞区间积分：</p>
+    <div class="eq">$$\int_{t^-}^{t^+}\bv F\,\mathrm dt
+      =m\int_{t^-}^{t^+}\frac{\mathrm d\bv v}{\mathrm dt}\,\mathrm dt
+      =m(\bv v^{+}-\bv v^{-})$$</div>
+    <div class="box note">
+      <b>冲量 = 质量 × 速度改变量</b>
+      反过来看更常用：
+      <div class="eq eq-sm">$$\bv v^{+}=\bv v^{-}+\frac{\boldsymbol\lambda}{m}$$</div>
+      给定冲量，速度就<em>确定地跳变</em>。这就是非光滑方法里"速度突变"的来源——碰撞是瞬时的，中间没有过渡。
+    </div>
+
+    <h3 id="s2-2"><span class="n">2.2</span>转动：欧拉方程与陀螺项</h3>
+    <div class="eq">$$\boldsymbol\tau=\frac{\mathrm d}{\mathrm dt}\big(\bv I\boldsymbol\omega\big)
+      =\underbrace{\bv I\frac{\mathrm d\boldsymbol\omega}{\mathrm dt}}_{\normalsize\text{类似 }ma}
+      +\underbrace{\boldsymbol\omega\times(\bv I\boldsymbol\omega)}_{\normalsize\text{陀螺项}}$$</div>
+    <p>对碰撞区间积分左边得角冲量 $\bv h$。右边第二项里 $\boldsymbol\omega$ 和 $\bv I$ 都是有限值，被积函数有限，区间 $\to 0$ 时积分趋于零：</p>
+    <div class="eq eq-hi">$$\bv h=\bv I\,(\boldsymbol\omega^{+}-\boldsymbol\omega^{-})$$</div>
+    <div class="box warn">
+      <b>陀螺项能扔，只因为积分区间趋近于零</b>
+      普通时间步里它不能扔——那是陀螺效应、网球拍翻转的来源。你项目 <code>Body.cpp</code> 的积分函数就保留了它。
+    </div>
+
+    <h3 id="s2-3"><span class="n">2.3</span>一个冲量作用在物体上</h3>
+    <p>冲量大小 $\lambda$，方向沿单位向量 $\bv n$，作用点相对质心的<span class="mh" data-m="lever">力臂</span>是 $\bv r$。</p>
+    <div class="cards c2">
+      <div class="card">
+        <h4>线冲量</h4>
+        <div class="eq">$$\boldsymbol\lambda=\lambda\,\bv n$$</div>
+      </div>
+      <div class="card">
+        <h4>角冲量</h4>
+        <p style="margin-bottom:6px">力矩是 $\bv r\times\bv F$，对时间积分：</p>
+        <div class="eq">$$\bv h=\int\bv r\times\bv F\,\mathrm dt
+          =\bv r\times(\lambda\bv n)=\lambda\,(\bv r\times\bv n)$$</div>
+      </div>
+    </div>
+    <p class="note-t">（$\bv r$ 碰撞瞬间几乎不变，能提到积分号外；标量 $\lambda$ 也能提出来。）</p>
+    <p>于是得到两个跳变方程，它们描述同一件事的两半：</p>
+    <div class="eq">$$m(\bv v^{+}-\bv v^{-})=\lambda\bv n
+      \qquad\qquad
+      \bv I(\boldsymbol\omega^{+}-\boldsymbol\omega^{-})=\lambda(\bv r\times\bv n)$$</div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="ch" id="ch3">
+    <div class="ch-num">第 3 章</div>
+    <h2>质量矩阵 $\bv M$：$\bv I_3$ 和 $\bv I$ 到底从哪来</h2>
+    <p class="ch-lead">这是最容易糊里糊涂跳过去的一步，拆到底。</p>
+
+    <h3 id="s3-1"><span class="n">3.1</span>平动方程为什么要乘一个 $\bv I_3$</h3>
+    <p>左边是"标量 $m$ 乘向量 $\Delta\bv v$"，要写成"矩阵乘向量"，得先造一个矩阵。</p>
+    <div class="eq">$$\begin{pmatrix}m&0&0\\0&m&0\\0&0&m\end{pmatrix}
+      \begin{pmatrix}\Delta v_x\\ \Delta v_y\\ \Delta v_z\end{pmatrix}
+      =\lambda\begin{pmatrix}n_x\\ n_y\\ n_z\end{pmatrix}
+      \qquad\Longrightarrow\qquad
+      \begin{pmatrix}m&0&0\\0&m&0\\0&0&m\end{pmatrix}=m\,\bv I_3$$</div>
+    <div class="box warn">
+      <b>$\bv I_3$ 的全部作用，就是把标量 $m$ 撑成一个 $3\times3$ 矩阵</b>
+      <ul>
+        <li>它<strong>没有任何物理含义</strong>——不是惯量，不是"单位质量"</li>
+        <li>它只是数字 1 的矩阵版本：<span class="mh" data-m="identity">单位矩阵</span> $\bv I_3\bv x=\bv x$，所以 $m\bv I_3\bv x=m\bv x$</li>
+        <li>目的只有一个：能和转动部分（本来就是矩阵）拼成 $6\times6$</li>
+      </ul>
+    </div>
+
+    <h3 id="s3-2"><span class="n">3.2</span>惯量张量 $\bv I$ 是什么</h3>
+    <p>抵抗转动的"惯性"，类比质量抵抗平动。它必须是 $3\times3$ 矩阵，因为绕不同轴转的难易程度不同。</p>
+    <table class="t">
+      <tr><th></th><th>平动</th><th>转动</th></tr>
+      <tr><td>"惯性"大小</td><td class="mono">质量 m（标量）</td><td class="mono">惯量 I（3×3）</td></tr>
+      <tr><td>动力学</td><td class="mono">F = ma</td><td class="mono">τ = I dω/dt</td></tr>
+      <tr><td>能量</td><td class="mono">½mv²</td><td class="mono">½ωᵀIω</td></tr>
+    </table>
+    <p>选中<span class="mh" data-m="principal">主轴</span>时，<span class="mh" data-m="inertia">惯性积</span>为零，$\bv I$ 变成对角阵：</p>
+    <div class="eq">$$\bv I_{\text{body}}=\begin{pmatrix}I_{xx}&0&0\\0&I_{yy}&0\\0&0&I_{zz}\end{pmatrix}$$</div>
+    <div class="cards c2">
+      <div class="card">
+        <h4>长方体 2a×2b×2c</h4>
+        <div class="eq">$$I_{xx}=\tfrac13 m(b^2+c^2),\ \dots$$</div>
+      </div>
+      <div class="card">
+        <h4>实心球（各向同性）</h4>
+        <div class="eq">$$I_{xx}=I_{yy}=I_{zz}=\tfrac25 mR^2$$</div>
+      </div>
+    </div>
+
+    <h3 id="s3-3"><span class="n">3.3</span>世界坐标系下的 $\bv I$</h3>
+    <p>惯量是"长在物体上"的。物体一转身，世界系里看到的惯量就变了。</p>
+    <div class="eq eq-hi">$$\bv I_{\text{world}}=\bv R\,\bv I_{\text{body}}\,\bv R^{\mathsf T}$$</div>
+    <p>$\bv R$ 是当前<span class="mh" data-m="rotm">旋转矩阵</span>，中间的 $\bv R^{\mathsf T}$ 是<span class="mh" data-m="transpose">转置</span>（相当于"变回物体自己的坐标"）。</p>
+    <div class="box warn">
+      <b>这就是 <code>inverseInertiaWorld()</code> 不是常量的原因</b>
+      物体每转一点，$\bv I_{\text{world}}$ 就变一次，<strong>它是个每步都要更新一次的矩阵</strong>。对角形式只在"贴着物体"的局部坐标系里成立。
+    </div>
+    <div class="box note">
+      <b>球是特例</b>
+      球各向同性，$\bv I_{\text{body}}=\tfrac25mR^2\bv I_3$ 是单位阵的倍数，所以
+      $\bv R\,\bv I_{\text{body}}\bv R^{\mathsf T}=\tfrac25mR^2\bv R\bv I_3\bv R^{\mathsf T}=\tfrac25mR^2\bv I_3$——<em>转不转都一样</em>，不用重算。
+    </div>
+
+    <h3 id="s3-4"><span class="n">3.4</span>本讲义的球：$m=1\,\mathrm{kg}$，$R=0.15\,\mathrm{m}$</h3>
+    <div class="eq">$$I=\tfrac25\times1\times0.15^2=0.4\times0.0225=0.009\ \mathrm{kg\cdot m^2}$$</div>
+    <div class="eq">$$\bv I=0.009\,\bv I_3
+      \qquad\Longrightarrow\qquad
+      \bv I^{-1}=\frac{1}{0.009}\,\bv I_3=111.11\,\bv I_3$$</div>
+    <div class="box note">
+      <b>为什么可以直接取倒数</b>
+      因为 $\bv I$ 是"标量 × <span class="mh" data-m="identity">单位阵</span>"。<span class="mh" data-m="inverse">逆矩阵</span>对对角阵就是每个对角元取倒数，三个都一样，所以整体就是除以 0.009。
+    </div>
+    <p class="note-t">记住 111.11 这个数——第 6 章算偏心撞击的等效质量时要用到它。</p>
+
+    <h3 id="s3-5"><span class="n">3.5</span>拼成广义质量矩阵 $\bv M$</h3>
+    <div class="eq eq-hi">$$\underbrace{\begin{pmatrix}m\bv I_3&\bv 0\\ \bv 0&\bv I\end{pmatrix}}_{\normalsize \bv M\ (6\times6)}\;\;
+      \underbrace{\begin{pmatrix}\Delta\bv v\\ \Delta\boldsymbol\omega\end{pmatrix}}_{\normalsize \Delta\bv u\ (6\times1)}
+      =\underbrace{\begin{pmatrix}\lambda\bv n\\ \lambda(\bv r\times\bv n)\end{pmatrix}}_{\normalsize\text{广义冲量}\ (6\times1)}$$</div>
+    <div class="box note">
+      <b>右端不用猜，就是前面两个方程的右边原样搬下来</b>
+      上半是线冲量，下半是角冲量。<em>这里没有引入新概念。</em>
+      它后面会被写成 $\bv J^{\mathsf T}\lambda$，那是第 6 章才证明的结论，现在先别记。
+    </div>
+    <p>右上和左下的 $\bv 0$ 是 $3\times3$ 零矩阵：<strong>平动与转动没有直接耦合</strong>，它们的耦合靠力臂 $\bv r$ 间接产生。</p>
+
+    <h3 id="s3-6"><span class="n">3.6</span>$\bv M^{-1}$ 就是代码里那两个字段</h3>
+    <div class="eq eq-hi">$$\bv M^{-1}=\begin{pmatrix}\frac1m\bv I_3&\bv 0\\ \bv 0&\bv I^{-1}\end{pmatrix}$$</div>
+    <p>验证一下（<span class="mh" data-m="mat">矩阵乘法</span>）：</p>
+    <div class="eq">$$\begin{pmatrix}m\bv I_3&\bv 0\\ \bv 0&\bv I\end{pmatrix}
+      \begin{pmatrix}\frac1m\bv I_3&\bv 0\\ \bv 0&\bv I^{-1}\end{pmatrix}
+      =\begin{pmatrix}\bv I_3&\bv 0\\ \bv 0&\bv I_3\end{pmatrix}=\bv I_6$$</div>
+    <div class="cards c2">
+      <div class="card">
+        <h4>invMass</h4>
+        <p>就是 $\frac1m$，一个标量。球的 $\frac1m\bv I_3$ 因为各向同性退化成标量。</p>
+      </div>
+      <div class="card">
+        <h4>invInertiaWorld</h4>
+        <p>就是 $\bv I^{-1}$，一个 $3\times3$ 矩阵。球的情形是 $111.11\,\bv I_3$。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="ch" id="ch4">
+    <div class="ch-num">第 4 章</div>
+    <h2>约束函数 $C(q)$：接触到底是什么条件</h2>
+    <p class="ch-lead">"球不能穿进地面"不是力，是<strong>对位置的限制</strong>。用<em>一个数</em>衡量"离违反约束还有多远"。</p>
+
+    <h3 id="s4-1"><span class="n">4.1</span>把 $C$ 写出来</h3>
+    <div class="cards c2">
+      <div class="card">
+        <h4>逐分量算一遍</h4>
+        <p style="margin-bottom:7px">球的最低点：</p>
+        <div class="eq">$$\bv p_{\text{ball}}=\bv x_c-R\bv n=(x_c,\ y_c-R,\ z_c)$$</div>
+        <p style="margin:10px 0 7px">地面正对它那个点：</p>
+        <div class="eq">$$\bv p_{\text{ground}}=(x_c,\ 0,\ z_c)$$</div>
+        <div class="eq">$$C=\bv n\cdot(\bv p_{\text{ball}}-\bv p_{\text{ground}})=y_c-R$$</div>
+      </div>
+      <div class="card">
+        <h4>结果</h4>
+        <div class="eq" style="padding:14px 16px">$$C(q)=y_c-R$$</div>
+        <p style="margin-top:10px">只跟球心高度有关：</p>
+        <ul class="plain" style="font-size:13px;margin-top:6px">
+          <li>与 $x_c,z_c$ 无关（横着挪不改间隙）</li>
+          <li>与转动无关（球转了最低点不动）</li>
+          <li>$\bv n\cdot(\cdot)$ 是<span class="mh" data-m="dot">点乘</span>，得到"沿法向的投影长度"</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 id="s4-2"><span class="n">4.2</span>$C$ 的三种取值</h3>
+    <table class="t">
+      <tr><th>条件</th><th>物理含义</th><th>说明</th></tr>
+      <tr><td class="mono">C &gt; 0</td><td>分得开，间隙为 C</td><td>没有接触，不产生力</td></tr>
+      <tr><td class="mono">C = 0</td><td>刚好贴住</td><td>接触的临界状态</td></tr>
+      <tr><td class="mono">C &lt; 0</td><td>嵌进去了，穿透深度 δ = −C</td><td>违背约束，要被推出来</td></tr>
+    </table>
+    <p>代入 $R=0.15$：</p>
+    <table class="t">
+      <tr><th>球心高度 $y_c$</th><th>$C=y_c-R$</th><th>状态</th></tr>
+      <tr><td class="mono">1.15</td><td class="mono">+1.00</td><td>在空中，间隙 1 m</td></tr>
+      <tr><td class="mono">0.15</td><td class="mono">0</td><td>刚好触地</td></tr>
+      <tr><td class="mono">0.12</td><td class="mono">−0.03</td><td>嵌入 3 cm（δ = 30 mm）</td></tr>
+    </table>
+    <div class="box note">
+      <b>页面上的 δ 就是 $-C$ 的正部</b>
+      $\delta=\max(0,-C)=\max(0,\,R-y_c)$。所以穿透深度<em>不可能为负</em>——把 $C$ 直接当 $\delta$ 用就会出错。
+    </div>
+
+    <h3 id="s4-3"><span class="n">4.3</span>为什么必须是 $C\ge 0$，不能是 $C=0$</h3>
+    <div class="cards c2">
+      <div class="card">
+        <h4>写成 C = 0</h4>
+        <p>球被"焊"在地面上，永远不能离开。这是<strong>等式约束</strong>（像棍子、铰链）。</p>
+      </div>
+      <div class="card" style="border-color:rgba(193,95,60,.4)">
+        <h4 style="color:var(--accent)">写成 C ≥ 0</h4>
+        <p>球可以飞起来（$C&gt;0$），但不许钻进去（$C&lt;0$）。这是<strong>单边约束</strong>——接触的真实形态。</p>
+      </div>
+    </div>
+    <p>单边约束对应的力必须满足<strong>互补条件</strong>（三条同时成立）：</p>
+    <div class="eq eq-hi">$$\lambda\ge 0,\qquad C\ge 0,\qquad \lambda\cdot C=0$$</div>
+    <div class="cards c3">
+      <div class="card"><h4>λ ≥ 0</h4><p>冲量只能推，不能拉（地面不会粘住球）</p></div>
+      <div class="card"><h4>C ≥ 0</h4><p>不许穿进去</p></div>
+      <div class="card"><h4>λ·C = 0</h4><p>要么没接触（λ=0），要么正好贴住（C=0）。<strong>不存在"没接触却在施力"</strong></p></div>
+    </div>
+    <div class="box warn">
+      <b>为什么叫"互补"</b>
+      两个非负数相乘为零，意味着<em>至少有一个是零</em>——约束松着（$C&gt;0$）力必须是零；力起作用（$\lambda&gt;0$）约束必须绑紧（$C=0$）。
+      在优化里这叫<strong>互补松弛</strong>。
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="ch" id="ch5">
+    <div class="ch-num">第 5 章</div>
+    <h2>求偏导：从 $C$ 得到雅可比 $\bv J$</h2>
+
+    <h3 id="s5-1"><span class="n">5.1</span>不直接求 $\partial C/\partial q$，改求 $\dot C$</h3>
+    <p>目标仍是 $\bv J=\partial C/\partial q$。但姿态的存储方式不唯一，直接求导既麻烦又没物理意义。</p>
+    <p>由<span class="mh" data-m="chain">链式法则</span>：</p>
+    <div class="eq">$$\dot C=\frac{\mathrm dC}{\mathrm dt}
+      =\sum_k\frac{\partial C}{\partial q_k}\dot q_k
+      =\bv J\,\bv u$$</div>
+    <div class="box note">
+      <b>关键思路</b>
+      算出 $\dot C$ 之后，它一定是"某个<span class="mh" data-m="rowvec">行向量</span> × $\bv u$"的形式。<strong>那个行向量就是 $\bv J$。</strong>
+      这条路绕开了对姿态求导，而且物理意义更清楚：$\dot C$ 就是<em>"间隙变化的速度"</em>。
+    </div>
+
+    <h3 id="s5-2"><span class="n">5.2</span>刚体上任意一点的速度公式</h3>
+    <p>点在体坐标系的坐标 $\bv s$ 不随时间变（刚体）。世界系位置：</p>
+    <div class="eq">$$\bv p(t)=\bv x_c(t)+\bv R(t)\,\bv s
+      \qquad\Longrightarrow\qquad
+      \dot{\bv p}=\dot{\bv x}_c+\dot{\bv R}\,\bv s$$</div>
+    <p>转动有标准关系 $\dot{\bv R}=[\boldsymbol\omega]_\times\bv R$，其中 $[\boldsymbol\omega]_\times$ 是<span class="mh" data-m="skew">叉乘矩阵</span>。代入：</p>
+    <div class="eq">$$\dot{\bv R}\bv s=[\boldsymbol\omega]_\times\bv R\bv s
+      =\boldsymbol\omega\times(\bv R\bv s)
+      =\boldsymbol\omega\times(\bv p-\bv x_c)=\boldsymbol\omega\times\bv r$$</div>
+    <div class="eq eq-hi">$$\boxed{\ \dot{\bv p}=\bv v+\boldsymbol\omega\times\bv r\ }$$</div>
+    <div class="box note">
+      <b>记住这个式子</b>
+      刚体上任意一点的速度 = 质心速度 + 转动带来的速度。后一项是<span class="mh" data-m="cross">叉乘</span>——转动木马外圈更晕，就是它。
+    </div>
+
+    <h3 id="s5-3"><span class="n">5.3</span>把 $\dot{\bv p}$ 代进 $\dot C$</h3>
+    <p>$C=\bv n\cdot(\bv p_A-\bv p_B)$，地面不动即 $\dot{\bv p}_B=\bv 0$：</p>
+    <div class="eq">$$\dot C=\bv n\cdot\dot{\bv p}_A
+      =\bv n\cdot(\bv v+\boldsymbol\omega\times\bv r)
+      =\underbrace{\bv n\cdot\bv v}_{\normalsize\text{好形式}}
+      +\underbrace{\bv n\cdot(\boldsymbol\omega\times\bv r)}_{\normalsize\omega\text{ 被夹在里面}}$$</div>
+    <p>第二项要<span class="mh" data-m="cross">叉乘</span>把 $\boldsymbol\omega$ 提到外面来——用<span class="mh" data-m="triple">三重积恒等式</span>：</p>
+    <div class="eq">$$\bv a\cdot(\bv b\times\bv c)=\bv b\cdot(\bv c\times\bv a)
+      \qquad\Longrightarrow\qquad
+      \bv n\cdot(\boldsymbol\omega\times\bv r)=\boldsymbol\omega\cdot(\bv r\times\bv n)$$</div>
+    <div class="eq eq-hi">$$\boxed{\ \dot C=\bv n\cdot\bv v+(\bv r\times\bv n)\cdot\boldsymbol\omega\ }$$</div>
+
+    <h3 id="s5-4"><span class="n">5.4</span>三重积恒等式为什么成立</h3>
+    <p>先把它写成<span class="mh" data-m="det">行列式</span>（三行分别是 $\bv a,\bv b,\bv c$）。按第一行展开，正好就是 $\bv b\times\bv c$ 的三个分量：</p>
+    <div class="eq">$$\bv a\cdot(\bv b\times\bv c)=\det\begin{pmatrix}a_x&a_y&a_z\\ b_x&b_y&b_z\\ c_x&c_y&c_z\end{pmatrix}$$</div>
+    <p>再用行列式性质：<strong>交换两行变号，交换两次符号变回来</strong>，所以<span class="mh" data-m="cycle">循环置换</span>行列式不变：</p>
+    <div class="eq">$$\det\begin{pmatrix}\bv a\\\bv b\\\bv c\end{pmatrix}
+      =\det\begin{pmatrix}\bv b\\\bv c\\\bv a\end{pmatrix}
+      =\det\begin{pmatrix}\bv c\\\bv a\\\bv b\end{pmatrix}$$</div>
+    <p>把每个行列式翻译回点乘形式，就得到：</p>
+    <div class="eq eq-hi">$$\bv a\cdot(\bv b\times\bv c)=\bv b\cdot(\bv c\times\bv a)=\bv c\cdot(\bv a\times\bv b)$$</div>
+
+    <h3 id="s5-5"><span class="n">5.5</span>写成矩阵形式，读出 $\bv J$</h3>
+    <div class="eq">$$\dot C=
+      \underbrace{\begin{pmatrix}n_x&n_y&n_z&(\bv r\times\bv n)_x&(\bv r\times\bv n)_y&(\bv r\times\bv n)_z\end{pmatrix}}_{\normalsize\bv J\ (1\times6)}
+      \begin{pmatrix}v_x\\v_y\\v_z\\\omega_x\\\omega_y\\\omega_z\end{pmatrix}$$</div>
+    <div class="eq eq-hi">$$\boxed{\ \bv J=\big[\ \bv n^{\mathsf T}\ \big|\ (\bv r\times\bv n)^{\mathsf T}\ \big]\ }$$</div>
+    <div class="cards c2">
+      <div class="card"><h4>前 3 位 = $\bv n$</h4><p>平动敏感度：沿法向走，间隙变化最快；横着走，一点不变。</p></div>
+      <div class="card"><h4>后 3 位 = $\bv r\times\bv n$</h4><p>转动敏感度：<strong>力臂</strong>叉乘<strong>法向</strong>——只有偏心的转动才影响间隙。</p></div>
+    </div>
+    <div class="box note">
+      <b>物理直觉</b>
+      $\bv J$ 回答"如果要最快地让球离地，该怎么动？"答案是竖直往上，所以只有 $y$ 方向那一位非零。
+    </div>
+
+    <h3 id="s5-6"><span class="n">5.6</span>球的 $\bv J$：为什么正撞不转</h3>
+    <p>$\bv n=(0,1,0)$，接触点在球心正下方，力臂 $\bv r=(0,-0.15,0)$。算<span class="mh" data-m="cross">叉乘</span>：</p>
+    <div class="eq">$$\bv r\times\bv n=\det\begin{pmatrix}\hat{\bv i}&\hat{\bv j}&\hat{\bv k}\\ 0&-0.15&0\\ 0&1&0\end{pmatrix}
+      =\begin{pmatrix}(-0.15)(0)-(0)(1)\\ -[(0)(0)-(0)(0)]\\ (0)(1)-(-0.15)(0)\end{pmatrix}
+      =\begin{pmatrix}0\\0\\0\end{pmatrix}$$</div>
+    <p class="note-t">（也可以直接判断：$\bv r$ 和 $\bv n$ 都只沿 $y$ 方向，<strong>平行向量的叉乘恒为零</strong>。）于是：</p>
+    <div class="eq eq-hi">$$\bv J=[\,0,\ 1,\ 0\ \big|\ 0,\ 0,\ 0\,]$$</div>
+    <p>验证它给出法向速度：</p>
+    <div class="eq">$$v_n=\bv J\bv u=0\cdot v_x+1\cdot v_y+0\cdot v_z+0+0+0=v_y$$</div>
+    <div class="box note">
+      <b>这就是"球正撞不会转"的数学来源</b>
+      $\bv J$ 的转动部分全是零，角速度对法向速度毫无影响。
+    </div>
+
+    <h3 id="s5-7"><span class="n">5.7</span>如果接触点偏心会怎样</h3>
+    <p>把力臂改成有水平偏移：$\bv r=(0.1,\,-0.15,\,0)$，重新算<span class="mh" data-m="cross">叉乘</span>：</p>
+    <div class="eq">$$\bv r\times\bv n=\det\begin{pmatrix}\hat{\bv i}&\hat{\bv j}&\hat{\bv k}\\ 0.1&-0.15&0\\ 0&1&0\end{pmatrix}
+      =\begin{pmatrix}0\\0\\0.1\end{pmatrix}$$</div>
+    <div class="eq eq-hi">$$\bv J=[\,0,\ 1,\ 0\ \big|\ 0,\ 0,\ 0.1\,]$$</div>
+    <div class="box warn">
+      <b>$\omega_z$ 现在参与了</b>
+      偏心撞击会让球<em>一边转一边撞</em>，而正撞不会。同一个公式解释了两件事——这就是 $\bv r\times\bv n$ 这个量的作用。
+    </div>
+    <div class="box note">
+      <b>什么时候后三位为零</b>
+      当接触点在"过质心、沿 $\bv n$ 方向的那条线"上时，$\bv r\parallel\bv n$，叉乘为零。
+      球永远满足这个条件；<strong>砖块用角接触时不满足</strong>，所以砖块会翻倒。
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="ch" id="ch6">
+    <div class="ch-num">第 6 章</div>
+    <h2>从 $\bv J$ 到等效质量 $m_{\text{eff}}$</h2>
+
+    <h3 id="s6-1"><span class="n">6.1</span>$\bv J^{\mathsf T}\lambda$：冲量如何变成力和力矩</h3>
+    <div class="eq">$$\bv J^{\mathsf T}\lambda
+      =\begin{pmatrix}\lambda\,\bv n\\ \lambda(\bv r\times\bv n)\end{pmatrix}
+      =\begin{pmatrix}\text{线冲量}\\ \text{角冲量}\end{pmatrix}$$</div>
+    <p>对比第 2 章推的物理量：线冲量 $\lambda\bv n$ ✓，角冲量 $\bv r\times(\lambda\bv n)=\lambda(\bv r\times\bv n)$ ✓。</p>
+    <div class="cards c2">
+      <div class="card"><h4>$\bv J$</h4><p><strong>速度 → 约束标量</strong>，把 6 维压成 1 维</p></div>
+      <div class="card"><h4>$\bv J^{\mathsf T}$</h4><p><strong>约束标量 → 广义力</strong>，把 1 维摊回 6 维</p></div>
+    </div>
+    <div class="box note">
+      <b>不是巧合，是虚功</b>
+      $\lambda\dot C=\lambda\bv J\bv u=(\bv J^{\mathsf T}\lambda)\cdot\bv u$——广义力必须等于 $\bv J^{\mathsf T}\lambda$，否则虚功对不上。
+    </div>
+
+    <h3 id="s6-2"><span class="n">6.2</span>$K=\bv J\bv M^{-1}\bv J^{\mathsf T}$：约束方向上的逆质量</h3>
+    <p>问：1 单位冲量能让法向速度改变多少？</p>
+    <div class="eq">$$\Delta v_n=\bv J\Delta\bv u
+      =\bv J\big(\bv M^{-1}\bv J^{\mathsf T}\lambda\big)
+      =\underbrace{\big(\bv J\bv M^{-1}\bv J^{\mathsf T}\big)}_{\normalsize K}\lambda$$</div>
+    <p>逐块算。第一步 $\bv M^{-1}\bv J^{\mathsf T}$（<span class="mh" data-m="mat">矩阵乘法</span>）：</p>
+    <div class="eq">$$\begin{pmatrix}\frac1m\bv I_3&\bv 0\\ \bv 0&\bv I^{-1}\end{pmatrix}
+      \begin{pmatrix}\bv n\\ \bv r\times\bv n\end{pmatrix}
+      =\begin{pmatrix}\frac1m\bv n\\ \bv I^{-1}(\bv r\times\bv n)\end{pmatrix}$$</div>
+    <p>第二步左乘 $\bv J$，分块<span class="mh" data-m="dot">点乘</span>：</p>
+    <div class="eq eq-hi">$$K=\underbrace{\bv n^{\mathsf T}\Big(\tfrac1m\bv n\Big)}_{\normalsize\frac1m|\bv n|^2=\frac1m}
+      +\underbrace{(\bv r\times\bv n)^{\mathsf T}\bv I^{-1}(\bv r\times\bv n)}_{\normalsize\text{转动贡献}}$$</div>
+
+    <h3 id="s6-3"><span class="n">6.3</span>等效质量与球的数值</h3>
+    <div class="eq eq-hi">$$m_{\text{eff}}=\frac1K
+      =\frac{1}{\displaystyle\frac1m+(\bv r\times\bv n)^{\mathsf T}\bv I^{-1}(\bv r\times\bv n)}$$</div>
+    <p>$K$ 是"单位冲量引起的法向速度变化"，$K$ 越大越"轻"，等效质量越小。</p>
+    <div class="cards c2">
+      <div class="card">
+        <h4>球：$\bv r\times\bv n=\bv 0$</h4>
+        <div class="eq">$$K=\frac11+0=1\ \Rightarrow\ m_{\text{eff}}=1\ \mathrm{kg}$$</div>
+        <p style="margin-top:8px">就是球自己的质量。</p>
+      </div>
+      <div class="card">
+        <h4>偏心：$\bv r\times\bv n=(0,0,0.1)$</h4>
+        <div class="eq">$$K=1+111.11\times0.01=2.111$$
+          $$m_{\text{eff}}=0.474\ \mathrm{kg}$$</div>
+      </div>
+    </div>
+    <div class="box warn">
+      <b>注意方向：偏心时 $m_{\text{eff}}$ 变小，不是变大</b>
+      转动项在分母里，加到分母上，分数就变小。
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="ch" id="ch7">
+    <div class="ch-num">第 7 章</div>
+    <h2>求冲量：把上面的东西拼起来</h2>
+
+    <h3 id="s7-1"><span class="n">7.1</span>求解器要满足的三条</h3>
+    <p>把速度投影到法向（$\dot C$ 的线性关系）：</p>
+    <div class="eq">$$v_n^{+}=\bv J\bv u^{+}
+      =\bv J(\bv u^{-}+\bv M^{-1}\bv J^{\mathsf T}\lambda)
+      =v_n^{-}+K\lambda$$</div>
+    <p>单边约束要求（不能继续往地里钻）：</p>
+    <div class="cards c3">
+      <div class="card"><h4>$v_n^+ \ge 0$</h4><p>不能继续接近</p></div>
+      <div class="card"><h4>$\lambda \ge 0$</h4><p>只能推不能拉</p></div>
+      <div class="card"><h4>$\lambda\cdot v_n^+ = 0$</h4><p>互补：不接近才可能有力</p></div>
+    </div>
+    <p>三式合起来是一个<strong>线性互补问题</strong>（LCP）：</p>
+    <div class="eq eq-hi">$$0\ \le\ \lambda\ \perp\ \big(v_n^{-}+K\lambda\big)\ \ge\ 0$$</div>
+
+    <h3 id="s7-2"><span class="n">7.2</span>无恢复（$e=0$）时直接解出来</h3>
+    <div class="cards c2">
+      <div class="card">
+        <h4>情形 A：$v_n^- \ge 0$（正在分开）</h4>
+        <p>不施加冲量：$\lambda=0$。检验 $v_n^+=v_n^-\ge 0$ ✓，互补成立。</p>
+      </div>
+      <div class="card">
+        <h4>情形 B：$v_n^- &lt; 0$（正在接近）</h4>
+        <p style="margin-bottom:6px">要把速度顶到 0：</p>
+        <div class="eq">$$v_n^++K\lambda=0
+          \Rightarrow\ \lambda=-\frac{v_n^-}{K}=m_{\text{eff}}|v_n^-|$$</div>
+      </div>
+    </div>
+    <div class="box note">
+      <b>这个解叫零恢复冲量 $\lambda_{\text{res0}}$</b>
+      刚好把侵入速度抵消掉。你项目里 <code>ContactSolver.cpp</code> 的
+      <code>lambdaRes0 = mEffN * (penetrationRate + accelNormal*dt)</code> 就是它，只是把外部加速度也算进去了。
+    </div>
+
+    <h3 id="s7-3"><span class="n">7.3</span>加入恢复系数</h3>
+    <p>有恢复时目标不是 0，而是<strong>反弹</strong>：</p>
+    <div class="eq">$$\text{目标：}\quad v_n^{+}=-e\,v_n^{-}$$</div>
+    <p class="note-t">符号检查：撞地 $v_n^-=-4.415$，$e=0.6$，则 $v_n^+=-0.6\times(-4.415)=+2.649$，向上 ✓</p>
+    <p>需要的速度增量（这就是代码里的 <code>rhs</code>）：</p>
+    <div class="eq">$$\Delta v_n=v_n^{+}-v_n^{-}=(-e\,v_n^{-})-v_n^{-}=-(1+e)\,v_n^{-}$$</div>
+    <p>由 $\Delta v_n=K\lambda$ 反解：</p>
+    <div class="eq eq-hi">$$\boxed{\ \lambda=m_{\text{eff}}\cdot\big[-(1+e)v_n^{-}\big]=m_{\text{eff}}(1+e)|v_n^-|\ }$$</div>
+
+    <h3 id="s7-4"><span class="n">7.4</span>钳位：$\lambda\leftarrow\max(0,\lambda)$</h3>
+    <p>上面的公式在 $v_n^->0$（正在分开）时会给出负的 $\lambda$，违反"只能推"。</p>
+    <div class="eq eq-hi">$$\lambda\leftarrow\max(0,\ \lambda)$$</div>
+    <div class="box note">
+      <b>这一行自动统一了所有情况</b>
+      不需要写 if 分支：
+      <ul>
+        <li>$v_n^-&lt;0$（接近）$\Rightarrow$ 公式给正数，保留</li>
+        <li>$v_n^->0$（分开）$\Rightarrow$ 公式给负数，被归零</li>
+      </ul>
+      <p style="margin:9px 0 0">这就是前面那个 LCP 的"投影解"——$\max(0,\cdot)$ 把结果投影回可行区间。</p>
+    </div>
+    <p>你项目里 CSE 版本的写法，是同一思想的另一种形态：</p>
+    <div class="eq">$$\lambda_n=\min\big(\max(0,\lambda_{cr}),\ \max(0,\lambda_{res0})\big)$$</div>
+
+    <h3 id="s7-5"><span class="n">7.5</span>把球撞地那一帧完整算出来</h3>
+    <p>已知：$m=1$，$\bv r\times\bv n=\bv 0$ 故 $m_{\text{eff}}=1$，$v_n^-=-4.415\,\mathrm{m/s}$，$e=0.60$。</p>
+    <table class="t">
+      <tr><th>步骤</th><th>计算</th><th>结果</th></tr>
+      <tr><td>目标速度增量</td><td class="mono">rhs = −(1+0.60) × (−4.415)</td><td class="mono">+7.064 m/s</td></tr>
+      <tr><td>冲量</td><td class="mono">λ = m<sub>eff</sub> × rhs = 1 × 7.064</td><td class="mono">7.064 N·s</td></tr>
+      <tr><td>钳位</td><td class="mono">max(0, 7.064)</td><td class="mono">7.064 N·s</td></tr>
+      <tr><td>写回速度</td><td class="mono">v⁺ = −4.415 + 7.064/1</td><td class="mono">+2.649 m/s</td></tr>
+      <tr><td>换成力</td><td class="mono">F = λ/Δt = 7.064 / (1/60)</td><td class="mono">423.8 N</td></tr>
+    </table>
+    <div class="box note">
+      <b>球以 2.649 m/s 向上弹起</b>
+      这五个数字就是页面右侧流程图里显示的那些值。
+    </div>
+
+    <h3 id="s7-6"><span class="n">7.6</span>三个自洽性检验</h3>
+    <div class="cards c3">
+      <div class="card">
+        <h4>① 动量</h4>
+        <div class="eq">$$m\Delta v=1\times7.064$$
+          $$=7.064=\lambda\ \checkmark$$</div>
+      </div>
+      <div class="card">
+        <h4>② 能量</h4>
+        <div class="eq">$$\frac{E^+}{E^-}=\frac{2.649^2}{4.415^2}$$
+          $$=0.360=e^2\ \checkmark$$</div>
+      </div>
+      <div class="card">
+        <h4>③ 静止</h4>
+        <div class="eq">$$\lambda=m g\Delta t$$
+          $$=0.1635\ \mathrm{N\cdot s}$$</div>
+      </div>
+    </div>
+    <div class="box note">
+      <b>第三个检验最有意思</b>
+      <p>球停住后，重力每步给它 $g\Delta t=0.1635\,\mathrm{m/s}$ 的向下速度，$e=0$ 时的冲量正好把它抵消。换算成力：</p>
+      <div class="eq">$$F=\frac{\lambda}{\Delta t}=\frac{0.1635}{1/60}=9.81\,\mathrm{N}=mg$$</div>
+      <p><strong>支撑力不需要单独建模</strong>——它就是同一个公式在 $e=0$ 时的取值。</p>
+    </div>
+
+    <h3 id="s7-7"><span class="n">7.7</span>为什么接触力要除以 $\Delta t$</h3>
+    <p>前面推的是<strong>连续时间</strong>的碰撞，$\lambda$ 是瞬时冲量。但仿真按固定步长推进，接触在一步之内完成：</p>
+    <div class="eq">$$F_{\text{avg}}=\frac{\lambda}{\Delta t}=\frac{7.064}{1/60}=423.8\ \mathrm N$$</div>
+    <div class="box warn">
+      <b>关键区分</b>
+      求解器从头到尾只有 $\lambda$（冲量）。$F=\lambda/\Delta t$ 是<strong>给用户看的显示量</strong>，不是求解对象。
+      <p style="margin:8px 0 0">所以"接触力"在非光滑方法里是个<em>事后换算</em>的量，不是一个独立求解的未知数。</p>
+    </div>
+    <div class="box note">
+      <b>真实接触的力是尖峰</b>
+      峰值更高、持续更短，但<em>冲量（面积）相同</em>。除以 $\Delta t$ 得到的是"步内平均值"。
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="ch" id="ch8">
+    <div class="ch-num">第 8 章</div>
+    <h2>多接触：为什么必须迭代</h2>
+
+    <h3 id="s8-1"><span class="n">8.1</span>单接触一次就精确，多接触互相耦合</h3>
+    <p>单接触时 $K$ 是一个数，一次除就得到答案。多接触时 $K$ 变成 $k\times k$ 矩阵：</p>
+    <div class="eq">$$K_{ij}=\bv J_i\bv M^{-1}\bv J_j^{\mathsf T}$$</div>
+    <div class="box note">
+      <b>非对角元 $K_{ij}$ 的含义</b>
+      给第 $j$ 个接触施加冲量，会改变第 $i$ 个接触的法向速度。
+      <p style="margin:7px 0 0">典型场景：球同时压在两块冰上，第一块被推开会让球转向，从而改变它与第二块的接触速度。</p>
+    </div>
+    <p>于是用<strong>投影 Gauss–Seidel（PGS）</strong>逐行逼近，每改一行立刻用于下一行：</p>
+    <div class="eq">$$v_{n,i}=v_{n,i}^-+\sum_j K_{ij}\lambda_j
+      \qquad
+      \lambda_i\leftarrow\mathrm{clamp}\big(\lambda_i+m_{\text{eff},i}\,(\text{rhs}_i-v_{n,i})\big)$$</div>
+    <div class="cards c2">
+      <div class="card"><h4>法向约束</h4><p>钳位区间 $[0,\ +\infty)$</p></div>
+      <div class="card"><h4>摩擦约束</h4><p>钳位区间 $[-\mu\lambda_n,\ +\mu\lambda_n]$</p></div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="ch" id="ch9">
+    <div class="ch-num">第 9 章</div>
+    <h2>完整流程总结</h2>
+    <p class="ch-lead">整条链压缩成五行。</p>
+    <div class="eq">$$\text{几何}\quad C(q)=\bv n\cdot(\bv p_A-\bv p_B)$$</div>
+    <div class="eq">$$\text{求导}\quad \bv J=\frac{\partial C}{\partial q}=[\ \bv n\ |\ \bv r\times\bv n\ ]$$</div>
+    <div class="eq">$$\text{动力学}\quad K=\bv J\bv M^{-1}\bv J^{\mathsf T}=\frac1m+(\bv r\times\bv n)^{\mathsf T}\bv I^{-1}(\bv r\times\bv n)$$</div>
+    <div class="eq">$$\text{碰撞律}\quad \text{rhs}=-(1+e)v_n^-$$</div>
+    <div class="eq eq-hi">$$\text{解}\quad \lambda=m_{\text{eff}}\cdot\text{rhs}\ \xrightarrow{\ \max(0,\cdot)\ }\
+      \text{写回}\ \bv u^+=\bv u^-+\bv M^{-1}\bv J^{\mathsf T}\lambda$$</div>
+    <div class="cards c3">
+      <div class="card"><h4>$m_{\text{eff}}$</h4><p><strong>动力学</strong>——这个方向"多难推动"</p></div>
+      <div class="card"><h4>$(1+e)$</h4><p><strong>碰撞律</strong>——能量损失多少</p></div>
+      <div class="card"><h4>$|v_n^-|$</h4><p><strong>运动学</strong>——原来撞得多快</p></div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="ch" id="appA">
+    <div class="ch-num">附录 A</div>
+    <h2>符号总表</h2>
+    <table class="t">
+      <tr><th>符号</th><th>名称</th><th>说明</th></tr>
+      <tr><td class="mono">u</td><td>广义速度</td><td>6×1，[v; ω]</td></tr>
+      <tr><td class="mono">v</td><td>线速度</td><td>质心速度，m/s</td></tr>
+      <tr><td class="mono">ω</td><td>角速度</td><td>rad/s</td></tr>
+      <tr><td class="mono">r</td><td>力臂</td><td>质心 → 接触点</td></tr>
+      <tr><td class="mono">n</td><td>接触法向</td><td><strong>单位</strong>向量，由 B 指向 A</td></tr>
+      <tr><td class="mono">m</td><td>质量</td><td>kg</td></tr>
+      <tr><td class="mono">I</td><td>惯量张量</td><td>3×3，世界系</td></tr>
+      <tr><td class="mono">I₃</td><td>单位矩阵</td><td>3×3，<em>无数值物理意义</em></td></tr>
+      <tr><td class="mono">M</td><td>广义质量矩阵</td><td>6×6，diag(mI₃, I)</td></tr>
+      <tr><td class="mono">M⁻¹</td><td>逆质量矩阵</td><td>diag(I₃/m, I⁻¹)</td></tr>
+      <tr><td class="mono">C(q)</td><td>约束 / 间隙函数</td><td>有符号间隙，≥0 才合法</td></tr>
+      <tr><td class="mono">δ</td><td>穿透深度</td><td>δ = max(0, −C)</td></tr>
+      <tr><td class="mono">J</td><td>约束雅可比</td><td>1×6，[n | r×n]</td></tr>
+      <tr><td class="mono">K</td><td>逆等效质量</td><td>单接触时是标量</td></tr>
+      <tr><td class="mono">m<sub>eff</sub></td><td>等效质量</td><td>1/K</td></tr>
+      <tr><td class="mono">λ</td><td>法向冲量</td><td>N·s，<strong>唯一未知数</strong></td></tr>
+      <tr><td class="mono">e</td><td>恢复系数</td><td>0 = 完全非弹性</td></tr>
+      <tr><td class="mono">μ</td><td>摩擦系数</td><td>—</td></tr>
+      <tr><td class="mono">Δt</td><td>时间步长</td><td>本例 1/60 s</td></tr>
+      <tr><td class="mono">v<sub>n</sub></td><td>法向相对速度</td><td>负 = 正在接近</td></tr>
+    </table>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="ch" id="appB">
+    <div class="ch-num">附录 B</div>
+    <h2>常见困惑速查</h2>
+    <div class="cards c2">
+      <div class="card">
+        <h4>I₃ 是惯量吗？</h4>
+        <p>不是。它只是把标量 m 撑成矩阵的工具，没有物理含义。惯量是 I。</p>
+      </div>
+      <div class="card">
+        <h4>为什么 J 后半是 r×n 不是 r？</h4>
+        <p>角速度通过叉乘贡献速度。r 与 n 平行时叉乘为零，转动完全不参与。</p>
+      </div>
+      <div class="card">
+        <h4>目标速度已知，为什么还要算冲量？</h4>
+        <p>目标只用来定 rhs。真正改速度的是 λ。多接触时各行目标互相牵制，不能直接赋值。</p>
+      </div>
+      <div class="card">
+        <h4>为什么穿透深度不能为负？</h4>
+        <p>因为 δ = max(0, −C) 定义时就截断了。C&gt;0 表示分离，不叫穿透。</p>
+      </div>
+      <div class="card">
+        <h4>为什么静止时还有冲量？</h4>
+        <p>重力每步给 gΔt 的向下速度，接触冲量每步抵消它。λ = mgΔt。</p>
+      </div>
+      <div class="card" style="border-color:rgba(193,95,60,.4)">
+        <h4 style="color:var(--accent)">偏心撞击 m_eff 变大还是变小？</h4>
+        <p><strong>变小。</strong>转动项在分母里，m_eff = 1/(1/m + 转动项) &lt; m。</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="side">
+  <div class="box">
+    <h4>目录</h4>
+    <div id="toc"></div>
+  </div>
+</nav>
+</div>
+
+<button id="totop" title="回到顶部">↑</button>
+<div id="tip"></div>
+
+<!-- ---------- 数学基础悬浮内容 ---------- -->
+<template id="mh-dot">
+  <span class="tt">点乘（内积）</span>
+  <div class="eq">$$\bv a\cdot\bv b=a_xb_x+a_yb_y+a_zb_z$$</div>
+  <div>结果是<strong>一个数</strong>，不是向量。几何意义：$\bv a\cdot\bv b=|\bv a||\bv b|\cos\theta$，即"$\bv b$ 在 $\bv a$ 方向上有多少分量"。</div>
+  <div class="kb">只有当 $\bv a$ 是单位向量时，点乘才等于"投影长度"</div>
+</template>
+
+<template id="mh-cross">
+  <span class="tt">叉乘（外积）</span>
+  <div class="eq">$$\bv a\times\bv b=\begin{pmatrix}a_yb_z-a_zb_y\\ a_zb_x-a_xb_z\\ a_xb_y-a_yb_x\end{pmatrix}$$</div>
+  <div>记法：三阶行列式
+    $\det\begin{pmatrix}\hat{\bv i}&\hat{\bv j}&\hat{\bv k}\\ a_x&a_y&a_z\\ b_x&b_y&b_z\end{pmatrix}$</div>
+  <div class="kb">结果垂直于两者；$|\bv a\times\bv b|=|\bv a||\bv b|\sin\theta$；<strong>平行时为零</strong>。物理用途：力矩 $\boldsymbol\tau=\bv r\times\bv F$</div>
+</template>
+
+<template id="mh-mat">
+  <span class="tt">矩阵乘向量</span>
+  <div>结果的第 $i$ 个分量 = 矩阵第 $i$ 行与向量点乘：</div>
+  <div class="eq">$$\bv A\bv x=\begin{pmatrix}a_{11}x_1+a_{12}x_2+a_{13}x_3\\ \vdots\end{pmatrix}$$</div>
+  <div class="kb">分块矩阵同理：每块按行列相乘再相加</div>
+</template>
+
+<template id="mh-identity">
+  <span class="tt">单位矩阵 $\bv I_3$</span>
+  <div class="eq">$$\bv I_3=\begin{pmatrix}1&0&0\\0&1&0\\0&0&1\end{pmatrix}
+    \qquad \bv I_3\bv x=\bv x$$</div>
+  <div>相当于数字里的"1"，乘上去什么也不变。</div>
+  <div class="kb">所以 $m\bv I_3\bv x=m\bv x$——它只是把标量撑成矩阵的工具</div>
+</template>
+
+<template id="mh-transpose">
+  <span class="tt">转置</span>
+  <div>行列互换，记作 $(\cdot)^{\mathsf T}$：</div>
+  <div class="eq">$$\begin{pmatrix}1&2&3\end{pmatrix}^{\mathsf T}=\begin{pmatrix}1\\2\\3\end{pmatrix}$$</div>
+  <div class="kb">物理意义：矩阵把"速度→数"，转置就把"数→力"</div>
+</template>
+
+<template id="mh-inverse">
+  <span class="tt">逆矩阵</span>
+  <div>$\bv A^{-1}$ 满足 $\bv A^{-1}\bv A=\bv I$，相当于"除以 $\bv A$"。</div>
+  <div>对角阵取逆 = 每个对角元取倒数：</div>
+  <div class="eq">$$\begin{pmatrix}k_1&0\\0&k_2\end{pmatrix}^{-1}=\begin{pmatrix}1/k_1&0\\0&1/k_2\end{pmatrix}$$</div>
+</template>
+
+<template id="mh-det">
+  <span class="tt">行列式</span>
+  <div class="eq">$$2\times2:\ \det\begin{pmatrix}a&b\\c&d\end{pmatrix}=ad-bc$$</div>
+  <div>按第一行展开（3×3）：</div>
+  <div class="eq">$$\det=a_x\det\tbinom{b_y\ b_z}{c_y\ c_z}-a_y\det\tbinom{b_x\ b_z}{c_x\ c_z}+\dots$$</div>
+  <div class="kb">关键性质：交换两行变号 ⟹ 循环置换不变</div>
+</template>
+
+<template id="mh-triple">
+  <span class="tt">三重积恒等式</span>
+  <div class="eq">$$\bv a\cdot(\bv b\times\bv c)=\bv b\cdot(\bv c\times\bv a)=\bv c\cdot(\bv a\times\bv b)$$</div>
+  <div>证明思路：左边等于以 $\bv a,\bv b,\bv c$ 为三行的行列式，而行列式在<strong>循环置换</strong>下行不变。作用：把夹在叉乘里的向量"提到外面"。</div>
+</template>
+
+<template id="mh-chain">
+  <span class="tt">链式法则</span>
+  <div>若 $C$ 依赖多个变量 $q_1,q_2,\dots$：</div>
+  <div class="eq">$$\frac{\mathrm dC}{\mathrm dt}=\sum_k\frac{\partial C}{\partial q_k}\dot q_k$$</div>
+  <div class="kb">写成矩阵就是 $\dot C=\bv J\bv u$——$\bv J$ 就是那排偏导数</div>
+</template>
+
+<template id="mh-jac">
+  <span class="tt">雅可比矩阵</span>
+  <div>约束函数对构型的梯度，排成一行：</div>
+  <div class="eq">$$\bv J=\frac{\partial C}{\partial q}=\Big(\tfrac{\partial C}{\partial q_1},\ \tfrac{\partial C}{\partial q_2},\dots\Big)$$</div>
+  <div class="kb">第 k 个分量 = "只动第 k 个坐标，间隙变多少"</div>
+</template>
+
+<template id="mh-integral">
+  <span class="tt">积分</span>
+  <div>$\int_a^b f(t)\,\mathrm dt$ 是曲线下方的<strong>面积</strong>。</div>
+  <div>物理上常见：力对时间积分 = 冲量（尖峰的面积有限，即使峰值很大）。</div>
+</template>
+
+<template id="mh-skew">
+  <span class="tt">叉乘矩阵</span>
+  <div>用矩阵乘法实现叉乘：</div>
+  <div class="eq">$$[\boldsymbol\omega]_\times=\begin{pmatrix}0&-\omega_z&\omega_y\\ \omega_z&0&-\omega_x\\ -\omega_y&\omega_x&0\end{pmatrix}$$</div>
+  <div>满足 $[\boldsymbol\omega]_\times\bv a=\boldsymbol\omega\times\bv a$。</div>
+  <div class="kb">角速度与旋转矩阵的关系：$\dot{\bv R}=[\boldsymbol\omega]_\times\bv R$</div>
+</template>
+
+<template id="mh-lever">
+  <span class="tt">力臂</span>
+  <div>从质心指向作用点的向量：</div>
+  <div class="eq">$$\bv r=\bv p-\bv x_c$$</div>
+  <div class="kb">叉乘 $\bv r\times\bv n$ 的大小是 $|\bv r|\sin\theta$，即"力臂在垂直于法向方向上的投影"</div>
+</template>
+
+<template id="mh-inertia">
+  <span class="tt">惯量张量</span>
+  <div>$3\times3$ 矩阵，描述绕各轴转动的难易。</div>
+  <div class="eq">$$\bv I=\int\rho(\bv x)\big[(\bv x\cdot\bv x)\bv I_3-\bv x\bv x^{\mathsf T}\big]\mathrm dV$$</div>
+  <div class="kb">对角元 = 绕各轴的主惯量；非对角元 = 惯性积（轴间耦合）</div>
+</template>
+
+<template id="mh-principal">
+  <span class="tt">主轴</span>
+  <div>能让惯量张量变成对角阵的那组坐标轴。</div>
+  <div>长方体、球这样的对称体，几何轴天然就是主轴。</div>
+</template>
+
+<template id="mh-rotm">
+  <span class="tt">旋转矩阵</span>
+  <div>$3\times3$ 矩阵 $\bv R$，把体坐标系的点变到世界系：</div>
+  <div class="eq">$$\bv p=\bv x_c+\bv R\bv s$$</div>
+  <div class="kb">满足 $\bv R^{\mathsf T}\bv R=\bv I_3$；存 9 个数但只有 3 个独立自由度</div>
+</template>
+
+<template id="mh-euler">
+  <span class="tt">欧拉角</span>
+  <div>用 3 个角度描述姿态（如绕 x、y、z 各转多少）。</div>
+  <div class="kb">直观，但在某些角度会有"万向节死锁"</div>
+</template>
+
+<template id="mh-quat">
+  <span class="tt">四元数</span>
+  <div>用 4 个数描述姿态（1 个实部 + 3 个虚部），无死锁，适合插值与积分。</div>
+  <div class="kb">刚体仿真的常用存储方式</div>
+</template>
+
+<template id="mh-rowvec">
+  <span class="tt">行向量</span>
+  <div>$1\times n$ 的矩阵，例如 $\begin{pmatrix}1&2&3\end{pmatrix}$。</div>
+  <div class="kb">行向量 × 列向量 = 一个数（点乘）；列向量 × 行向量 = 矩阵</div>
+</template>
+
+<template id="mh-cycle">
+  <span class="tt">循环置换</span>
+  <div>把三行 $1\to2\to3\to1$ 轮换，例如 $(\bv a,\bv b,\bv c)\to(\bv b,\bv c,\bv a)$。</div>
+  <div class="kb">等价于交换两次，所以行列式<strong>不变</strong></div>
+</template>
+
+<script src="katex/katex.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  const MACROS = { "\\bv": "\\boldsymbol", "\\dd": "\\mathrm{d}" };
+
+  // ---------- KaTeX 渲染 ----------
+  function renderIn(root){
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        if(!n.nodeValue || n.nodeValue.indexOf('$') < 0) return NodeFilter.FILTER_REJECT;
+        let p = n.parentElement;
+        while(p && p !== root.parentElement){
+          if(p.classList && (p.classList.contains('katex') ||
+             p.classList.contains('katex-display') ||
+             p.tagName === 'TEMPLATE' || p.tagName === 'SCRIPT' || p.tagName === 'STYLE'))
+            return NodeFilter.FILTER_REJECT;
+          p = p.parentElement;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = [];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+
+    nodes.forEach(node => {
+      const txt = node.nodeValue;
+      const frag = document.createDocumentFragment();
+      const re = /\$\$([\s\S]+?)\$\$|\$([^$\n]+?)\$/g;
+      let last = 0, m;
+      while((m = re.exec(txt))){
+        if(m.index > last) frag.appendChild(document.createTextNode(txt.slice(last, m.index)));
+        const span = document.createElement('span');
+        const display = m[1] !== undefined;
+        const tex = display ? m[1] : m[2];
+        try{
+          katex.render(tex, span, {displayMode: display, throwOnError: false, strict: false, macros: MACROS});
+        }catch(e){ span.textContent = m[0]; }
+        frag.appendChild(span);
+        last = m.index + m[0].length;
+      }
+      if(last < txt.length) frag.appendChild(document.createTextNode(txt.slice(last)));
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+  renderIn(document.querySelector('main'));
+
+  // ---------- 目录 ----------
+  const toc = document.getElementById('toc');
+  // 取"干净"的标题文字：去掉 KaTeX 的 MathML 注解（里面是 TeX 源码）
+  function plainText(el){
+    const c = el.cloneNode(true);
+    c.querySelectorAll('.katex-mathml').forEach(n => n.remove());
+    return (c.textContent || '').replace(/\s+/g, ' ').trim();
+  }
+
+  const heads = Array.from(document.querySelectorAll('main .ch h2, main .ch h3'));
+  const links = [];
+  heads.forEach(h => {
+    const ch = h.closest('.ch');
+    const isCh = h.tagName === 'H2';
+    let label = plainText(h);
+    if(!isCh) label = label.replace(/^[\d.]+\s*/, '');
+    const a = document.createElement('a');
+    a.href = '#' + (isCh ? ch.id : h.id);
+    a.textContent = label;
+    a.title = label;
+    if(!isCh) a.className = 'sub';
+    a.dataset.target = isCh ? ch.id : h.id;
+    toc.appendChild(a);
+    links.push(a);
+  });
+
+  // ---------- 滚动进度 + 当前章节 ----------
+  const prog = document.getElementById('progress');
+  const totop = document.getElementById('totop');
+  const targets = links.map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+
+  function onScroll(){
+    const st = window.scrollY || document.documentElement.scrollTop;
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    prog.style.width = (h > 0 ? (st / h * 100) : 0) + '%';
+    totop.classList.toggle('on', st > 400);
+
+    // 当前所在标题
+    let idx = -1;
+    for(let i = 0; i < targets.length; i++){
+      if(targets[i].getBoundingClientRect().top <= 120) idx = i; else break;
+    }
+    links.forEach((a, i) => a.classList.toggle('on', i === idx));
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  totop.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+
+  // ---------- 数学悬浮 ----------
+  const tip = document.getElementById('tip');
+  let tipOwner = null;
+  let tipShownAt = 0;
+
+  function buildTip(key){
+    const tpl = document.getElementById('mh-' + key);
+    if(!tpl) return null;
+    const box = document.createElement('div');
+    box.appendChild(tpl.content.cloneNode(true));
+    renderIn(box);
+    return box;
+  }
+
+  function positionTip(el){
+    const r = el.getBoundingClientRect();
+    const tr = tip.getBoundingClientRect();
+    const pad = 12;
+    let left = r.left + r.width/2 - tr.width/2;
+    left = Math.max(pad, Math.min(window.innerWidth - tr.width - pad, left));
+    let top = r.top - tr.height - 10;
+    if(top < pad) top = r.bottom + 10;
+    if(top + tr.height > window.innerHeight - pad) top = window.innerHeight - tr.height - pad;
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+
+  function showTip(el){
+    const content = buildTip(el.dataset.m);
+    if(!content) return;
+    tip.innerHTML = '';
+    tip.appendChild(content);
+    tip.classList.add('on');
+    tip.style.opacity = '1';
+    tip.style.visibility = 'visible';
+    tip.style.transform = 'none';
+    tipOwner = el;
+    tipShownAt = performance.now();
+    positionTip(el);
+  }
+  function hideTip(){
+    tip.classList.remove('on');
+    tip.style.opacity = '0';
+    tip.style.visibility = 'hidden';
+    tipOwner = null;
+  }
+
+  document.querySelector('main').addEventListener('mouseover', e => {
+    const el = e.target.closest && e.target.closest('.mh');
+    if(el && el !== tipOwner) showTip(el);
+  });
+  document.querySelector('main').addEventListener('mouseout', e => {
+    const el = e.target.closest && e.target.closest('.mh');
+    if(el && !(e.relatedTarget && el.contains(e.relatedTarget))) hideTip();
+  });
+  document.querySelector('main').addEventListener('click', e => {
+    const el = e.target.closest && e.target.closest('.mh');
+    if(el){ e.preventDefault(); showTip(el); }
+  });
+  window.addEventListener('scroll', () => {
+    if(!tipOwner) return;
+    if(performance.now() - tipShownAt < 160) return;
+    hideTip();
+  }, {passive:true});
+  window.addEventListener('resize', () => { if(tipOwner) positionTip(tipOwner); });
+
+})();
+</script>
+</body>
+</html>
