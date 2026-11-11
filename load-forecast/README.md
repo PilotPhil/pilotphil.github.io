@@ -15,6 +15,11 @@
   - 在线：<https://pilotphil.github.io/load-forecast/buoyancy/>
   - 源码：与本目录相同（纯静态，无构建步骤）
 
+- [碰撞检测实验室](collision/) —— 二维碰撞检测演示。四种 broad-phase 粗筛 + 2D GJK 精判，实时可视化 AABB、候选对、单纯形与 Minkowski 差。
+
+  - 在线：<https://pilotphil.github.io/load-forecast/collision/>
+  - 源码：与本目录相同（纯静态，无构建步骤）
+
 ## 重新构建
 
 ```bash
@@ -39,3 +44,9 @@ pnpm --filter @ccm/web build
 
 纯静态部署，没有构建步骤：`index.html` + `styles.css` + `src/*.js`。
 从原项目复制时未改动物理、渲染和界面逻辑，只在顶栏加了「← 主页」返回链接。
+
+
+## 碰撞检测实验室
+
+纯静态部署，没有构建步骤：`index.html` + `styles.css` + `src/*.js`。
+从原项目复制时未改动检测、渲染和界面逻辑，只在顶栏加了「← 主页」返回链接。

@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2f9f8">
+  <meta name="description" content="一个不依赖第三方库的二维碰撞检测演示：可切换暴力枚举、扫描排序、均匀网格和四叉树的 broad-phase，再用 GJK 做 narrow-phase 精确判定。">
+  <meta property="og:title" content="碰撞检测实验室 · Broad × Narrow">
+  <meta property="og:description" content="AABB 粗筛，GJK 精算。一个纯原生 Canvas 2D 的二维碰撞检测实验。">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>碰撞检测实验室 · Broad × Narrow</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23227e9c'/%3E%3Cpath d='M16 24l10-6 10 6v14l-10 6-10-6V24Z' fill='none' stroke='white' stroke-width='2.6'/%3E%3Cpath d='M28 20l10 6v14l-10 6' fill='rgba(255,255,255,.2)' stroke='white' stroke-width='2.6'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand" aria-label="碰撞检测实验室">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40">
+            <path d="M10 14.5L20 9l9 5.5v11L20 31l-9-5.5v-11Z" fill="none" stroke="white" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M20.5 14l8 4.6v9.8l-8 4.6" fill="rgba(255,255,255,.18)" stroke="white" stroke-width="1.7" stroke-linejoin="round"/>
+            <circle cx="20.2" cy="19.8" r="2.1" fill="white"/>
+          </svg>
+        </span>
+        <span class="brand-words">
+          <strong>碰撞检测实验室</strong>
+          <span>COLLISION LAB</span>
+        </span>
+      </div>
+      <div class="topbar-meta">
+        <span class="topbar-rule" aria-hidden="true"></span>
+        <span class="topbar-text">两级检测 · BROAD × NARROW</span>
+        <span class="topbar-chip"><span></span>2D · Canvas</span>
+        <a class="back-home" href="../../#load" title="返回 Pilot Phil 主页">← 主页</a>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="stage-shell" id="stage" aria-label="碰撞检测实时可视化">
+        <canvas id="scene" role="img" aria-label="一个可拖动的凸多边形查询体在散落的障碍体之间移动，AABB、候选对和 GJK 结果被实时标记"></canvas>
+
+        <aside class="minkowski-card" id="minkowskiCard" aria-label="GJK 的 Minkowski 差实时图解">
+          <div class="minkowski-card-head">
+            <span class="minkowski-card-title"><span class="gjk-spark"></span>GJK · MINKOWSKI 差</span>
+            <span class="minkowski-card-state is-idle" id="minkowskiState">等待候选</span>
+          </div>
+          <canvas id="minkowskiCanvas" aria-label="Minkowski 差 A 减 B 的凸包、GJK 单纯形、迭代支撑点与原点"></canvas>
+          <div class="minkowski-card-foot">
+            <span><i class="legend-dot legend-dot--simplex"></i>单纯形</span>
+            <span><i class="legend-dot legend-dot--support"></i>支撑点</span>
+            <span><i class="legend-dot legend-dot--origin"></i>原点</span>
+            <span class="minkowski-card-meta" id="minkowskiMeta">—</span>
+          </div>
+        </aside>
+
+        <aside class="params" id="paramsPanel" aria-label="检测设置">
+          <div class="params-head">
+            <div>
+              <span class="kicker">QUERY SETTINGS</span>
+              <h2>检测设置</h2>
+            </div>
+            <button class="icon-ghost collapse-btn" id="collapseBtn" type="button" aria-label="收起检测设置" aria-expanded="true" aria-controls="paramsBody">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <div class="params-body" id="paramsBody">
+            <div class="add-head">
+              <span>Broad-phase 算法</span>
+              <small>可切换</small>
+            </div>
+
+            <div class="algo-grid" role="group" aria-label="Broad-phase 算法">
+              <button class="algo-card" type="button" data-algo="brute" aria-pressed="false">
+                <span class="algo-icon" aria-hidden="true">
+                  <svg viewBox="0 0 26 26"><rect x="2.5" y="8" width="7.5" height="10" rx="1.4"/><rect x="16" y="3.8" width="7.5" height="6.2" rx="1.2"/><rect x="16" y="13.6" width="7.5" height="8.6" rx="1.2"/><path d="M10 13h6M10 13l6-4.5M10 13l6 5.2"/></svg>
+                </span>
+                <span class="algo-words"><strong>暴力枚举</strong><small>BRUTE FORCE</small></span>
+                <span class="algo-mark" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2.2 6.2l2.5 2.5 5-5.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </button>
+              <button class="algo-card" type="button" data-algo="sap" aria-pressed="false">
+                <span class="algo-icon" aria-hidden="true">
+                  <svg viewBox="0 0 26 26"><path d="M2.5 6.5h21M2.5 19.5h21"/><rect x="4.5" y="9" width="9.5" height="3.2" rx="1.2"/><rect x="11" y="13.8" width="10.5" height="3.2" rx="1.2"/><path d="M13.2 4.4v17.2" stroke-dasharray="2 2"/></svg>
+                </span>
+                <span class="algo-words"><strong>扫描排序</strong><small>SWEEP &amp; PRUNE</small></span>
+                <span class="algo-mark" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2.2 6.2l2.5 2.5 5-5.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </button>
+              <button class="algo-card is-active" type="button" data-algo="grid" aria-pressed="true">
+                <span class="algo-icon" aria-hidden="true">
+                  <svg viewBox="0 0 26 26"><path d="M3 3h20v20H3zM3 9.7h20M3 16.3h20M9.7 3v20M16.3 3v20"/><rect class="fill-cell" x="9.7" y="9.7" width="6.6" height="6.6"/></svg>
+                </span>
+                <span class="algo-words"><strong>均匀网格</strong><small>UNIFORM GRID</small></span>
+                <span class="algo-mark" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2.2 6.2l2.5 2.5 5-5.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </button>
+              <button class="algo-card" type="button" data-algo="quad" aria-pressed="false">
+                <span class="algo-icon" aria-hidden="true">
+                  <svg viewBox="0 0 26 26"><rect x="3" y="3" width="20" height="20" rx="1"/><path d="M3 13h20M13 3v20M13 13h10v10M13 13h-4.5V8.5"/><rect class="fill-cell" x="18" y="18" width="5" height="5"/></svg>
+                </span>
+                <span class="algo-words"><strong>四叉树</strong><small>QUADTREE</small></span>
+                <span class="algo-mark" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2.2 6.2l2.5 2.5 5-5.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </button>
+            </div>
+
+            <div class="algo-note" id="algoNote">
+              <span class="note-dot"></span>
+              <span id="algoNoteText">只读查询盒压住的少数格子，再合并去重。</span>
+            </div>
+
+            <div class="panel-rule"></div>
+
+            <div class="control">
+              <div class="control-label">
+                <label for="bodyCount">障碍体数量 <i>N</i></label>
+                <output for="bodyCount"><span id="bodyCountOut">16</span><small>个</small></output>
+              </div>
+              <input class="range" type="range" id="bodyCount" min="8" max="24" step="1" value="16" aria-label="障碍体数量">
+            </div>
+
+            <div class="params-foot">
+              <button class="mini-toggle is-on" id="aabbToggle" type="button" aria-pressed="true">
+                <span class="toggle-track"><span></span></span>
+                全部 AABB
+              </button>
+              <button class="text-btn" type="button" id="resetBtn">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15.6 8.2A6.2 6.2 0 1 0 16 11.5M15.6 8.2V4.5m0 3.7h-3.7" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                重排
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <div class="scene-hud">
+          <div class="live-pill" id="livePill">
+            <span class="live-dot"></span>
+            <span id="liveText">实时检测</span>
+          </div>
+          <button class="hud-btn" id="pauseBtn" type="button" aria-label="暂停检测" title="暂停 / 继续（空格）">
+            <svg class="icon-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10M13 5v10"/></svg>
+            <svg class="icon-play" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4.8l8 5.2-8 5.2V4.8Z"/></svg>
+          </button>
+          <button class="hud-btn" id="shuffleBtn" type="button" aria-label="重新生成布局" title="重排布局（R）">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.2 6.4h2.7c2.7 0 4.1 7.2 6.8 7.2h3.4M3.2 13.6h2.7c1.1 0 2-.9 2.8-2.2M13.2 3.8l2.8 2.6-2.8 2.6M13.2 10.8l2.8 2.6-2.8 2.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+
+        <div class="scene-foot">
+          <div class="scene-hint">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.8v14.4M2.8 10h14.4M10 2.8L8.2 4.7M10 2.8l1.8 1.9M10 17.2l-1.8-1.9M10 17.2l1.8-1.9M2.8 10l1.9-1.8M2.8 10l1.9 1.8M17.2 10l-1.9-1.8M17.2 10l-1.9 1.8" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span id="hintText">拖动查询体 · 空格暂停 · R 重排</span>
+          </div>
+          <button class="mode-toggle is-on" id="roamToggle" type="button" aria-pressed="true">
+            <span class="toggle-track"><span></span></span>
+            <span id="roamText">自动巡游</span>
+          </button>
+        </div>
+
+        <div class="scene-toast" id="toast" role="status" aria-live="polite"></div>
+      </section>
+
+      <aside class="explainer" aria-label="碰撞检测流程讲解">
+        <div class="explainer-head">
+          <div class="explainer-kicker"><span class="kicker-dot"></span>两级检测 · TWO-PHASE DETECTION</div>
+          <h1>粗筛一遍，<em>精算</em>一次。</h1>
+          <p class="explainer-lede">AABB 粗筛，GJK 在 Minkowski 差上精算。</p>
+          <button class="focus-chip" id="focusChip" type="button" title="点击切换当前候选对">
+            <span class="focus-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 9.5l6-3.5 6 3.5v7l-6 3.5-6-3.5v-7Z"/><path d="M10 7.5l5.5-2.4 5 4.6v6l-5 4.4-5.5-2.1"/></svg>
+            </span>
+            <span class="focus-meta"><small>当前焦点 · 点击切换</small><strong id="focusName">正在准备查询体</strong></span>
+            <span class="focus-state" id="focusState">—</span>
+            <svg class="focus-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+
+        <div class="explainer-scroll" id="explainerScroll">
+          <div class="funnel" aria-label="本轮检测漏斗">
+            <span class="funnel-cut" id="statCut">等待数据</span>
+            <div class="funnel-step">
+              <span class="funnel-label">障碍体</span>
+              <span class="funnel-value"><b id="statBodies">16</b><i>个</i></span>
+            </div>
+            <svg class="funnel-arrow" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9h10M9.8 5.3L13.5 9l-3.7 3.7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="funnel-step funnel-step--amber">
+              <span class="funnel-label">AABB 候选</span>
+              <span class="funnel-value"><b id="statCandidates">0</b><i>对</i></span>
+            </div>
+            <svg class="funnel-arrow" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9h10M9.8 5.3L13.5 9l-3.7 3.7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="funnel-step funnel-step--coral">
+              <span class="funnel-label">GJK 命中</span>
+              <span class="funnel-value"><b id="statHits">0</b><i>对</i></span>
+            </div>
+          </div>
+
+          <div class="steps-label"><span>检测流程</span><span>4 STEPS</span></div>
+          <ol class="steps">
+            <li class="step" data-stage="aabb">
+              <div class="step-num">01</div>
+              <div class="step-body">
+                <div class="step-head">
+                  <div class="step-copy">
+                    <h3>给每个凸体套上包围盒</h3>
+                    <p>只比较四个边界值，是最便宜的第一道排除。</p>
+                  </div>
+                  <svg class="step-fig" viewBox="0 0 72 72" aria-hidden="true">
+                    <rect x="13" y="20" width="32" height="28" rx="1.5" fill="#fbf2e6" stroke="#d59a55" stroke-width="1.2" stroke-dasharray="4 3"/>
+                    <path d="M29 14l18 5 7 20-17 15-19-7-4-18 15-15Z" fill="rgba(92,154,171,.13)" stroke="#86aeb9" stroke-width="1.15" stroke-linejoin="round"/>
+                    <rect x="27" y="28" width="33" height="28" rx="1.5" fill="rgba(66,149,172,.08)" stroke="#2d8ca9" stroke-width="1.35" stroke-dasharray="4 3"/>
+                    <path d="M27 20h33M27 63h33" stroke="#b8d5dd" stroke-width=".8" stroke-dasharray="2 2"/>
+                  </svg>
+                </div>
+                <div class="formula">
+                  <span class="math">A<sub>min</sub> ≤ B<sub>max</sub> ∧ B<sub>min</sub> ≤ A<sub>max</sub></span>
+                  <span class="math math--quiet">x &amp; y</span>
+                </div>
+                <div class="step-live step-live--split">
+                  <span>查询盒 <b id="liveQueryAabb">—</b></span>
+                  <span>包围盒访问 <b id="liveAabbCount">—</b></span>
+                </div>
+              </div>
+            </li>
+
+            <li class="step" data-stage="broad">
+              <div class="step-num">02</div>
+              <div class="step-body">
+                <div class="step-head">
+                  <div class="step-copy">
+                    <h3 id="broadTitle">查格子里的物体</h3>
+                    <p id="broadDesc">每个障碍体登记进它覆盖的格子。查询时只读查询盒压住的少数几格，再合并去重。</p>
+                  </div>
+                  <span class="step-fig step-fig--icon" id="broadFig" aria-hidden="true">
+                    <svg viewBox="0 0 26 26"><path d="M3 3h20v20H3zM3 9.7h20M3 16.3h20M9.7 3v20M16.3 3v20"/><rect class="fill-cell" x="9.7" y="9.7" width="6.6" height="6.6"/></svg>
+                  </span>
+                </div>
+                <div class="formula formula--algo">
+                  <span class="math" id="broadFormula">cell = ⌊ p / s ⌋,　s = 网格边长</span>
+                </div>
+                <div class="step-live step-live--split">
+                  <span id="broadLiveLabel">网格访问</span>
+                  <b id="broadLive">—</b>
+                  <span class="broad-extra" id="broadExtra">—</span>
+                </div>
+              </div>
+            </li>
+
+            <li class="step" data-stage="gjk">
+              <div class="step-num">03</div>
+              <div class="step-body">
+                <div class="step-head">
+                  <div class="step-copy">
+                    <h3>用支撑点收紧单纯形</h3>
+                    <p>沿方向取差集上最远的点，收紧单纯形，直到命中或收敛。</p>
+                  </div>
+                  <svg class="step-fig" viewBox="0 0 72 72" aria-hidden="true">
+                    <polygon points="14,23 58,16 62,49 28,60" fill="rgba(106,95,201,.08)" stroke="#a9a3dc" stroke-width="1" stroke-dasharray="3 3"/>
+                    <polygon points="27,39 44,26 57,46" fill="rgba(106,95,201,.16)" stroke="#6a5fc9" stroke-width="1.25" stroke-linejoin="round"/>
+                    <circle cx="40" cy="39" r="3.2" fill="#d96550" stroke="#fff" stroke-width="1"/>
+                    <path d="M40 39l-9-8m9 8l-2 11m2-11l13-4" stroke="#6a5fc9" stroke-width=".9" stroke-dasharray="2 2"/>
+                    <circle cx="27" cy="39" r="1.8" fill="#fff" stroke="#6a5fc9" stroke-width=".9"/>
+                    <circle cx="44" cy="26" r="1.8" fill="#fff" stroke="#6a5fc9" stroke-width=".9"/>
+                    <circle cx="57" cy="46" r="1.8" fill="#fff" stroke="#6a5fc9" stroke-width=".9"/>
+                  </svg>
+                </div>
+                <div class="formula">
+                  <span class="math">p(d) = S<sub>A</sub>(d) − S<sub>B</sub>(−d)</span>
+                  <span class="math math--quiet">support</span>
+                </div>
+                <div class="step-live step-live--split">
+                  <span>迭代 <b id="liveGjkIter">—</b></span>
+                  <span>单纯形 <b id="liveGjkShape">—</b></span>
+                  <span>状态 <b id="liveGjkState">—</b></span>
+                  <span class="broad-extra">实时图解 · 舞台</span>
+                </div>
+              </div>
+            </li>
+
+            <li class="step" data-stage="verdict">
+              <div class="step-num">04</div>
+              <div class="step-body">
+                <div class="step-head">
+                  <div class="step-copy">
+                    <h3>得到布尔答案</h3>
+                    <p>原点在差集内即相交；否则 GJK 给出分离距离。</p>
+                  </div>
+                  <svg class="step-fig" viewBox="0 0 72 72" aria-hidden="true">
+                    <circle cx="36" cy="36" r="21" fill="rgba(217,101,80,.06)" stroke="#e1b3aa" stroke-width="1.1" stroke-dasharray="3 3"/>
+                    <path d="M25 37.5l7.4 7.2L48 27.5" fill="none" stroke="#d96550" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="formula">
+                  <span class="math">hit ⇔ 0 ∈ A ⊖ B</span>
+                  <span class="math math--quiet" id="verdictQuiet">布尔结果</span>
+                </div>
+                <div class="step-live step-live--split">
+                  <span>判定 <b id="liveVerdict">—</b></span>
+                  <span>分离距离 <b id="liveDistance">—</b></span>
+                  <span>GJK 调用 <b id="liveCalls">—</b></span>
+                </div>
+              </div>
+            </li>
+          </ol>
+
+          <div class="notation">
+            <span><i>N</i> 障碍体数量</span>
+            <span>AABB 轴对齐包围盒</span>
+            <span>GJK simplex 搜索</span>
+            <span>逐帧重算 · Canvas 2D</span>
+          </div>
+        </div>
+
+        <div class="scroll-cue" id="scrollCue" aria-hidden="true">
+          <span>继续向下</span>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <noscript>
+    <div class="noscript">这个实验需要启用 JavaScript 才能运行。</div>
+  </noscript>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>

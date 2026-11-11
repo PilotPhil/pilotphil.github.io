@@ -25,7 +25,8 @@ Pilot Phil 的个人主页。结构很简单：姓名 + GitHub，下面四个 ta
 │   ├── README.md
 │   ├── ccm/                           # 船破层冰模拟（构建后的静态应用）
 │   ├── ccm-src/                       # 该应用的源码（web + core）
-│   └── buoyancy/                      # 浮冰实验室（纯静态 WebGL）
+│   ├── buoyancy/                      # 浮冰实验室（纯静态 WebGL）
+│   └── collision/                     # 碰撞检测实验室（纯静态 Canvas 2D）
 ├── dsh-plugin/                        # DSH Plugin（外部仓库汇总）
 │   └── README.md
 ├── agent/                             # Agent（施工中）
@@ -51,7 +52,7 @@ Pilot Phil 的个人主页。结构很简单：姓名 + GitHub，下面四个 ta
 - **GitHub 链接**：搜索 `https://github.com/PilotPhil`，页头一处
 - **Tab**：`.tabs` 里的四个 `<button>`，对应下面四个 `[data-panel]` 区块
 - **冰力学**：一张卡片，链接到 `/ice-mechanics/ice-failure/`
-- **冰载荷预报**：两张卡片，分别链接到 `/load-forecast/ccm/` 与 `/load-forecast/buoyancy/`
+- **冰载荷预报**：三张卡片，分别链接到 `/load-forecast/ccm/`、`/load-forecast/buoyancy/` 与 `/load-forecast/collision/`
 - **DSH Plugin**：三张卡片，分别链接到三个 GitHub 仓库
 - **Agent**：目前是 `施工中`，以后把 `.empty` 换成 `.card-grid` 即可
 
