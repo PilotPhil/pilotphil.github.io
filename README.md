@@ -57,7 +57,7 @@ Pilot Phil 的个人主页。结构很简单：姓名 + GitHub，下面五个 ta
 - **冰力学**：一张卡片，链接到 `/ice-mechanics/ice-failure/`
 - **NDEM**：两张卡片，分别链接到 `/load-forecast/collision/` 与 `/load-forecast/ndem/`
 - **冰载荷预报**：两张卡片，分别链接到 `/load-forecast/ccm/` 与 `/load-forecast/buoyancy/`
-- **DSH Plugin**：三张卡片，分别链接到三个 GitHub 仓库
+- **DSH Plugin**：四张卡片，分别链接到四个 GitHub 仓库
 - **Agent**：目前是 `施工中`，以后把 `.empty` 换成 `.card-grid` 即可
 
 新增一张卡片最简单的方法：复制任意一个 `<a class="card">...</a>`，改标题、说明和链接。

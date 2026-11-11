@@ -1,12 +1,13 @@
 # DSH Plugin
 
-为 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 开发的插件。三个插件都在独立仓库维护，主页直接链接到 GitHub。
+为 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 开发的插件。四个插件都在独立仓库维护，主页直接链接到 GitHub。
 
 ## 插件
 
 - [dsh-session-status-colors](https://github.com/PilotPhil/dsh-session-status-colors) —— 按实时状态给 DSH 侧栏的会话条目着色：红为运行中，黄为等待处理，绿为完成未看；可选桌面置顶红绿灯。
 - [dsh-flowmeter](https://github.com/PilotPhil/dsh-flowmeter) —— 在输入框下方显示实时 tok/s、首字延迟与均速图表，侧栏再放一枚所有会话的合计流速读数。
 - [dsh-opencodego-usage](https://github.com/PilotPhil/dsh-opencodego-usage) —— 在 DSH 侧栏显示 OpenCode Go 订阅的 5 小时、本周、本月三档余量，带进度条、重置时间与一键刷新。
+- [dsh-ui-modify](https://github.com/PilotPhil/dsh-ui-modify) —— 集中管理 DSH 侧栏按钮：隐藏「更多」「自动化任务」「新会话」等入口，可重排顶/底动作布局，并支持逐个发现和隐藏；开关在「设置 → 界面优化」。
 
 ## 以后
 
