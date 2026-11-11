@@ -1,16 +1,16 @@
 # pilotphil.github.io
 
-Pilot Phil 的个人主页。结构很简单：姓名 + GitHub，下面四个 tab。
+Pilot Phil 的个人主页。结构很简单：姓名 + GitHub，下面五个 tab。
 
 **在线：<https://pilotphil.github.io/>**
 
 ## 目录结构
 
-一个 tab 对应一个顶层目录，每个作品再单独建子目录。这样内容多了也不会混在一起。
+内容目录按项目归档，主页 tab 是展示分类。每个作品单独建子目录，避免文件混在一起。
 
 ```text
 .
-├── index.html                         # 主页：四个 tab + 内容卡片
+├── index.html                         # 主页：五个 tab + 内容卡片
 ├── 404.html
 ├── assets/                            # 站点级资源（主页共用）
 │   ├── css/main.css
@@ -21,13 +21,13 @@ Pilot Phil 的个人主页。结构很简单：姓名 + GitHub，下面四个 ta
 │   └── ice-failure/                   # 海冰三轴失效准则演示
 │       ├── index.html
 │       └── README.md
-├── load-forecast/                     # 冰载荷预报
+├── load-forecast/                     # 冰载荷预报 / NDEM 项目
 │   ├── README.md
-│   ├── ccm/                           # 船破层冰模拟（构建后的静态应用）
+│   ├── ccm/                           # 2D层冰载荷预报（构建后的静态应用）
 │   ├── ccm-src/                       # 该应用的源码（web + core）
-│   ├── buoyancy/                      # 浮冰实验室（纯静态 WebGL）
-│   ├── collision/                     # 碰撞检测实验室（纯静态 Canvas 2D）
-│   └── ndem/                          # 船冰接触力学（纯静态 HTML + KaTeX）
+│   ├── buoyancy/                      # 冰浮力计算（纯静态 WebGL）
+│   ├── collision/                     # 双阶段碰撞检测（纯静态 Canvas 2D）
+│   └── ndem/                          # 冲量动力学例子及原理（纯静态 HTML + KaTeX）
 ├── dsh-plugin/                        # DSH Plugin（外部仓库汇总）
 │   └── README.md
 ├── agent/                             # Agent（施工中）
@@ -38,9 +38,11 @@ Pilot Phil 的个人主页。结构很简单：姓名 + GitHub，下面四个 ta
 └── .nojekyll
 ```
 
+主页的 NDEM 栏目目前指向 `load-forecast/collision/` 与 `load-forecast/ndem/`；为了不改已有 URL，这两个目录继续留在 `load-forecast/` 下。
+
 约定：
 
-- 每个新作品放在对应分类目录下的独立子目录里，自带 `README.md`
+- 每个新作品放在独立子目录里，自带 `README.md`
 - 作品自己的图片、数据、脚本放在它自己的子目录，不要丢进 `assets/`
 - `assets/` 只放主页共用的 CSS、JS、图标
 - DSH 的三个插件目前都在独立 GitHub 仓库维护，主页直接外链；`dsh-plugin/` 用来汇总链接和以后的说明页
@@ -51,13 +53,14 @@ Pilot Phil 的个人主页。结构很简单：姓名 + GitHub，下面四个 ta
 
 - **名字**：搜索 `Pilot Phil`，会出现在页头、`<title>` 和页脚
 - **GitHub 链接**：搜索 `https://github.com/PilotPhil`，页头一处
-- **Tab**：`.tabs` 里的四个 `<button>`，对应下面四个 `[data-panel]` 区块
+- **Tab**：`.tabs` 里的五个 `<button>`，对应下面五个 `[data-panel]` 区块
 - **冰力学**：一张卡片，链接到 `/ice-mechanics/ice-failure/`
-- **冰载荷预报**：四张卡片，分别链接到 `/load-forecast/ccm/`、`/load-forecast/buoyancy/`、`/load-forecast/collision/` 与 `/load-forecast/ndem/`
+- **NDEM**：两张卡片，分别链接到 `/load-forecast/collision/` 与 `/load-forecast/ndem/`
+- **冰载荷预报**：两张卡片，分别链接到 `/load-forecast/ccm/` 与 `/load-forecast/buoyancy/`
 - **DSH Plugin**：三张卡片，分别链接到三个 GitHub 仓库
 - **Agent**：目前是 `施工中`，以后把 `.empty` 换成 `.card-grid` 即可
 
-新增一张卡片最简单的方法：复制任意一个 `<a class="card">...</a>`，改标题、说明、链接和仓库名。
+新增一张卡片最简单的方法：复制任意一个 `<a class="card">...</a>`，改标题、说明和链接。
 
 ## 本地预览
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pilot Phil</title>
-  <meta name="description" content="Pilot Phil 的个人主页：冰力学、冰载荷预报、DSH Plugin 与 Agent。">
+  <meta name="description" content="Pilot Phil 的个人主页：冰力学、NDEM、冰载荷预报、DSH Plugin 与 Agent。">
   <meta name="theme-color" content="#f6f4ee">
   <link rel="canonical" href="https://pilotphil.github.io/">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -34,6 +34,7 @@
   <main class="wrap main">
     <div class="tabs" role="tablist" aria-label="内容分类">
       <button class="tab is-active" id="tab-ice" type="button" role="tab" aria-selected="true" aria-controls="panel-ice" data-tab="ice">冰力学</button>
+      <button class="tab" id="tab-ndem" type="button" role="tab" aria-selected="false" aria-controls="panel-ndem" data-tab="ndem" tabindex="-1">NDEM</button>
       <button class="tab" id="tab-load" type="button" role="tab" aria-selected="false" aria-controls="panel-load" data-tab="load" tabindex="-1">冰载荷预报</button>
       <button class="tab" id="tab-plugin" type="button" role="tab" aria-selected="false" aria-controls="panel-plugin" data-tab="plugin" tabindex="-1">DSH Plugin</button>
       <button class="tab" id="tab-agent" type="button" role="tab" aria-selected="false" aria-controls="panel-agent" data-tab="agent" tabindex="-1">Agent</button>
@@ -47,52 +48,18 @@
         </div>
         <h2>海冰三轴失效准则演示</h2>
         <p>第一强度理论、Mises、Mohr–Coulomb 与 Tsai–Wu 四种失效准则，在 σ₁–σ₂ 平面与三维主应力空间中交互判定。</p>
-        <div class="card-foot">
-          <span>Three.js · WebGL</span>
-          <span class="card-open">打开演示</span>
-        </div>
       </a>
     </section>
 
-    <section class="panel" id="panel-load" role="tabpanel" aria-labelledby="tab-load" data-panel="load" hidden>
-      <div class="card-grid card-grid-2">
-        <a class="card" href="/load-forecast/ccm/?project=1.5m_5kts_500kPa_3207.ccm.json">
-          <div class="card-top">
-            <span class="card-tag">船–冰相互作用 · 仿真工作台</span>
-            <span class="card-arrow" aria-hidden="true">→</span>
-          </div>
-          <h2>船破层冰模拟</h2>
-          <p>二维船舶破层冰仿真工作台：参数调整、冰场网格、船体水线与阻力曲线。打开时载入 1.5 m 冰厚 / 5 kts / 500 kPa 的示例工况。</p>
-          <div class="card-foot">
-            <span>CCM Web · React / Canvas</span>
-            <span class="card-open">打开工作台</span>
-          </div>
-        </a>
-
-        <a class="card" href="/load-forecast/buoyancy/">
-          <div class="card-top">
-            <span class="card-tag">浮力与浮心 · 实时 3D</span>
-            <span class="card-arrow" aria-hidden="true">→</span>
-          </div>
-          <h2>浮冰实验室</h2>
-          <p>用水平截面实时求浸没体积与浮心，演示多块冰在水中的六自由度漂浮、力矩与受力。</p>
-          <div class="card-foot">
-            <span>Pure WebGL · 无第三方库</span>
-            <span class="card-open">打开实验</span>
-          </div>
-        </a>
-
+    <section class="panel" id="panel-ndem" role="tabpanel" aria-labelledby="tab-ndem" data-panel="ndem" hidden>
+      <div class="card-grid">
         <a class="card" href="/load-forecast/collision/">
           <div class="card-top">
             <span class="card-tag">碰撞检测 · Broad × Narrow</span>
             <span class="card-arrow" aria-hidden="true">→</span>
           </div>
-          <h2>碰撞检测实验室</h2>
+          <h2>双阶段碰撞检测</h2>
           <p>四种 Broad-phase 粗筛加 2D GJK 精判，实时可视化 AABB、候选对、单纯形与 Minkowski 差。</p>
-          <div class="card-foot">
-            <span>Pure Canvas 2D · 无第三方库</span>
-            <span class="card-open">打开实验</span>
-          </div>
         </a>
 
         <a class="card" href="/load-forecast/ndem/">
@@ -100,12 +67,30 @@
             <span class="card-tag">非光滑接触动力学 · NDEM</span>
             <span class="card-arrow" aria-hidden="true">→</span>
           </div>
-          <h2>船冰接触力学</h2>
+          <h2>冲量动力学例子及原理</h2>
           <p>用一个球落向地面的最小例子，拆开接触冲量计算；附一维落地仿真与完整公式推导。</p>
-          <div class="card-foot">
-            <span>Pure HTML · KaTeX</span>
-            <span class="card-open">打开演示</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-load" role="tabpanel" aria-labelledby="tab-load" data-panel="load" hidden>
+      <div class="card-grid">
+        <a class="card" href="/load-forecast/ccm/?project=1.5m_5kts_500kPa_3207.ccm.json">
+          <div class="card-top">
+            <span class="card-tag">船–冰相互作用 · 仿真工作台</span>
+            <span class="card-arrow" aria-hidden="true">→</span>
           </div>
+          <h2>2D层冰载荷预报</h2>
+          <p>二维船舶破层冰仿真工作台：参数调整、冰场网格、船体水线与阻力曲线。打开时载入 1.5 m 冰厚 / 5 kts / 500 kPa 的示例工况。</p>
+        </a>
+
+        <a class="card" href="/load-forecast/buoyancy/">
+          <div class="card-top">
+            <span class="card-tag">浮力与浮心 · 实时 3D</span>
+            <span class="card-arrow" aria-hidden="true">→</span>
+          </div>
+          <h2>冰浮力计算</h2>
+          <p>用水平截面实时求浸没体积与浮心，演示多块冰在水中的六自由度漂浮、力矩与受力。</p>
         </a>
       </div>
     </section>
@@ -119,10 +104,6 @@
           </div>
           <h2>会话状态配色</h2>
           <p>按实时状态给 DSH 侧栏的会话条目着色：红为运行中，黄为等待处理，绿为完成未看；可选桌面置顶红绿灯。</p>
-          <div class="card-foot">
-            <span class="repo">dsh-session-status-colors</span>
-            <span class="card-open">GitHub</span>
-          </div>
         </a>
 
         <a class="card" href="https://github.com/PilotPhil/dsh-flowmeter" target="_blank" rel="noopener">
@@ -132,10 +113,6 @@
           </div>
           <h2>模型流速</h2>
           <p>在输入框下方显示实时 tok/s、首字延迟与均速图表，侧栏再放一枚所有会话的合计流速读数。</p>
-          <div class="card-foot">
-            <span class="repo">dsh-flowmeter</span>
-            <span class="card-open">GitHub</span>
-          </div>
         </a>
 
         <a class="card" href="https://github.com/PilotPhil/dsh-opencodego-usage" target="_blank" rel="noopener">
@@ -145,10 +122,6 @@
           </div>
           <h2>OpenCode Go 余量</h2>
           <p>在 DSH 侧栏显示 OpenCode Go 订阅的 5 小时、本周、本月三档余量，带进度条、重置时间与一键刷新。</p>
-          <div class="card-foot">
-            <span class="repo">dsh-opencodego-usage</span>
-            <span class="card-open">GitHub</span>
-          </div>
         </a>
       </div>
     </section>

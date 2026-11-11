@@ -1,31 +1,34 @@
-# 冰载荷预报
+# 冰载荷预报 / NDEM 项目目录
 
-船–冰相互作用与冰载荷预报相关的工作。
+主页上「冰载荷预报」和「NDEM」两个栏目的项目文件目前都放在这个目录里。
+为了不改已有 URL，碰撞检测与接触力学的目录没有搬动；主页上它们归入 NDEM 栏目。
 
-## 内容
+## 冰载荷预报
 
-- [CCM Web 船破层冰模拟](ccm/) —— 二维船舶破层冰仿真工作台。React + TypeScript + Canvas，包含参数面板、冰场网格、船体水线、阻力曲线和仿真控制。
+- [2D层冰载荷预报（CCM Web）](ccm/) —— 二维船舶破层冰仿真工作台。React + TypeScript + Canvas，包含参数面板、冰场网格、船体水线、阻力曲线和仿真控制。
 
   - 在线：<https://pilotphil.github.io/load-forecast/ccm/>
   - 示例工程：`ccm/projects/` 下的 6 个 `.ccm.json`，主页卡片默认载入 `1.5m_5kts_500kPa_3207`
   - 源码：`ccm-src/`（从 `CCM_web` 复制，只保留 `packages/web` 与 `packages/core`，桌面端 `CCM_Re` 和 `.h5` 数据没有带过来）
 
-- [浮冰实验室](buoyancy/) —— 实时 3D 冰块漂浮实验。用水平截面求浸没体积与浮心，支持多块冰、六自由度、力矢量与公式联动。
+- [冰浮力计算（浮冰实验室）](buoyancy/) —— 实时 3D 冰块漂浮实验。用水平截面求浸没体积与浮心，支持多块冰、六自由度、力矢量与公式联动。
 
   - 在线：<https://pilotphil.github.io/load-forecast/buoyancy/>
   - 源码：与本目录相同（纯静态，无构建步骤）
 
-- [碰撞检测实验室](collision/) —— 二维碰撞检测演示。四种 broad-phase 粗筛 + 2D GJK 精判，实时可视化 AABB、候选对、单纯形与 Minkowski 差。
+## NDEM 栏目
+
+- [双阶段碰撞检测（Collision Lab）](collision/) —— 二维碰撞检测演示。四种 broad-phase 粗筛 + 2D GJK 精判，实时可视化 AABB、候选对、单纯形与 Minkowski 差。
 
   - 在线：<https://pilotphil.github.io/load-forecast/collision/>
   - 源码：与本目录相同（纯静态，无构建步骤）
 
-- [船冰接触力学](ndem/) —— 非光滑接触动力学演示。一维小球落地仿真 + 完整冲量推导长文，KaTeX 公式本地渲染。
+- [冲量动力学例子及原理（NDEM）](ndem/) —— 非光滑接触动力学演示。一维小球落地仿真 + 完整冲量推导长文，KaTeX 公式本地渲染。
 
   - 在线：<https://pilotphil.github.io/load-forecast/ndem/>
   - 源码：与本目录相同（纯静态，无构建步骤）
 
-## 重新构建
+## 重新构建 CCM Web
 
 ```bash
 cd ccm-src
@@ -35,7 +38,7 @@ pnpm --filter @ccm/web build
 
 构建结果直接输出到 `../ccm/`，`index.html` 和资源使用相对路径，因此可以放在任意子路径下部署。
 
-## 为部署做的修改
+## CCM Web 的部署修改
 
 - Vite `base` 改为 `./`，构建产物输出到 `../ccm/`
 - 工程 JSON 的加载路径改为相对当前页面目录，不再写死 `/projects/...`
@@ -44,20 +47,19 @@ pnpm --filter @ccm/web build
 
 仿真核心和界面逻辑未改动。
 
+## 纯静态项目
 
-## 浮冰实验室
-
-纯静态部署，没有构建步骤：`index.html` + `styles.css` + `src/*.js`。
-从原项目复制时未改动物理、渲染和界面逻辑，只在顶栏加了「← 主页」返回链接。
-
-
-## 碰撞检测实验室
+### 冰浮力计算（浮冰实验室）
 
 纯静态部署，没有构建步骤：`index.html` + `styles.css` + `src/*.js`。
-从原项目复制时未改动检测、渲染和界面逻辑，只在顶栏加了「← 主页」返回链接。
+从原项目复制时未改动物理、渲染和界面逻辑，只在顶栏加了「← 主页」返回链接；返回冰载荷预报 tab。
 
+### 双阶段碰撞检测（Collision Lab）
 
-## 船冰接触力学
+纯静态部署，没有构建步骤：`index.html` + `styles.css` + `src/*.js`。
+从原项目复制时未改动检测、渲染和界面逻辑，只在顶栏加了「← 主页」返回链接；返回 NDEM tab。
+
+### 冲量动力学例子及原理（NDEM）
 
 纯静态小站，没有构建步骤：入口 `index.html` + `simulation.html` + `derivation.html` + 本地 `katex/`。
-从原项目复制时未改动仿真、推导和界面逻辑，只在入口页加了「← 主页」返回链接。
+从原项目复制时未改动仿真、推导和界面逻辑，只在入口页加了「← 主页」返回链接；返回 NDEM tab。
