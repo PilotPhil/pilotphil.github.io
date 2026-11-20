@@ -375,3 +375,40 @@ svg {
 .button:hover {
   background: var(--accent);
 }
+
+.notfound-links {
+  margin-top: 44px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+.notfound-links-title {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.notfound-links ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 20px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notfound-links a {
+  padding-bottom: 1px;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--ink-3);
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.notfound-links a:hover {
+  border-color: currentColor;
+  color: var(--accent);
+}
