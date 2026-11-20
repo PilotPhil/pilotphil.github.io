@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pilot Phil</title>
-  <meta name="description" content="Pilot Phil 的个人主页：冰力学、NDEM、冰载荷预报、DSH Plugin 与 Agent。">
+  <meta name="description" content="Pilot Phil 的个人主页：冰力学、NDEM、冰载荷预报、DSH Plugin、Agent 与小工具。">
   <meta name="theme-color" content="#f6f4ee">
   <link rel="canonical" href="https://pilotphil.github.io/">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -38,13 +38,14 @@
       <button class="tab" id="tab-load" type="button" role="tab" aria-selected="false" aria-controls="panel-load" data-tab="load" tabindex="-1">冰载荷预报</button>
       <button class="tab" id="tab-plugin" type="button" role="tab" aria-selected="false" aria-controls="panel-plugin" data-tab="plugin" tabindex="-1">DSH Plugin</button>
       <button class="tab" id="tab-agent" type="button" role="tab" aria-selected="false" aria-controls="panel-agent" data-tab="agent" tabindex="-1">Agent</button>
+      <button class="tab" id="tab-other" type="button" role="tab" aria-selected="false" aria-controls="panel-other" data-tab="other" tabindex="-1">其他</button>
     </div>
 
     <section class="panel" id="panel-ice" role="tabpanel" aria-labelledby="tab-ice" data-panel="ice">
-      <a class="card card-wide" href="/ice-mechanics/ice-failure/">
+      <a class="card card-wide" href="https://pilotphil.github.io/ice_failure_demo_web/" target="_blank" rel="noopener">
         <div class="card-top">
-          <span class="card-tag">交互演示</span>
-          <span class="card-arrow" aria-hidden="true">→</span>
+          <span class="card-tag">交互演示 · 3D WebGL</span>
+          <span class="card-arrow" aria-hidden="true">↗</span>
         </div>
         <h2>海冰三轴失效准则演示</h2>
         <p>第一强度理论、Mises、Mohr–Coulomb 与 Tsai–Wu 四种失效准则，在 σ₁–σ₂ 平面与三维主应力空间中交互判定。</p>
@@ -53,19 +54,19 @@
 
     <section class="panel" id="panel-ndem" role="tabpanel" aria-labelledby="tab-ndem" data-panel="ndem" hidden>
       <div class="card-grid">
-        <a class="card" href="/load-forecast/collision/">
+        <a class="card" href="https://pilotphil.github.io/collisionDetection_web/" target="_blank" rel="noopener">
           <div class="card-top">
             <span class="card-tag">碰撞检测 · Broad × Narrow</span>
-            <span class="card-arrow" aria-hidden="true">→</span>
+            <span class="card-arrow" aria-hidden="true">↗</span>
           </div>
           <h2>双阶段碰撞检测</h2>
           <p>四种 Broad-phase 粗筛加 2D GJK 精判，实时可视化 AABB、候选对、单纯形与 Minkowski 差。</p>
         </a>
 
-        <a class="card" href="/load-forecast/ndem/">
+        <a class="card" href="https://pilotphil.github.io/ndem_1D_web/" target="_blank" rel="noopener">
           <div class="card-top">
             <span class="card-tag">非光滑接触动力学 · NDEM</span>
-            <span class="card-arrow" aria-hidden="true">→</span>
+            <span class="card-arrow" aria-hidden="true">↗</span>
           </div>
           <h2>冲量动力学例子及原理</h2>
           <p>用一个球落向地面的最小例子，拆开接触冲量计算；附一维落地仿真与完整公式推导。</p>
@@ -75,19 +76,19 @@
 
     <section class="panel" id="panel-load" role="tabpanel" aria-labelledby="tab-load" data-panel="load" hidden>
       <div class="card-grid">
-        <a class="card" href="/load-forecast/ccm/?project=1.5m_5kts_500kPa_3207.ccm.json">
+        <a class="card" href="https://pilotphil.github.io/CCM_web/?project=1.5m_5kts_500kPa_3207.ccm.json" target="_blank" rel="noopener">
           <div class="card-top">
             <span class="card-tag">船–冰相互作用 · 仿真工作台</span>
-            <span class="card-arrow" aria-hidden="true">→</span>
+            <span class="card-arrow" aria-hidden="true">↗</span>
           </div>
           <h2>2D层冰载荷预报</h2>
           <p>二维船舶破层冰仿真工作台：参数调整、冰场网格、船体水线与阻力曲线。打开时载入 1.5 m 冰厚 / 5 kts / 500 kPa 的示例工况。</p>
         </a>
 
-        <a class="card" href="/load-forecast/buoyancy/">
+        <a class="card" href="https://pilotphil.github.io/buoyancy_demo_web/" target="_blank" rel="noopener">
           <div class="card-top">
             <span class="card-tag">浮力与浮心 · 实时 3D</span>
-            <span class="card-arrow" aria-hidden="true">→</span>
+            <span class="card-arrow" aria-hidden="true">↗</span>
           </div>
           <h2>冰浮力计算</h2>
           <p>用水平截面实时求浸没体积与浮心，演示多块冰在水中的六自由度漂浮、力矩与受力。</p>
@@ -140,6 +141,17 @@
         <p class="empty-title">施工中</p>
         <p class="empty-note">Agent 相关的内容还在整理，之后会放上来。</p>
       </div>
+    </section>
+
+    <section class="panel" id="panel-other" role="tabpanel" aria-labelledby="tab-other" data-panel="other" hidden>
+      <a class="card card-wide" href="https://pilotphil.github.io/badminton-chouqian/" target="_blank" rel="noopener">
+        <div class="card-top">
+          <span class="card-tag">小工具 · 移动端优先</span>
+          <span class="card-arrow" aria-hidden="true">↗</span>
+        </div>
+        <h2>羽毛球电子抽签</h2>
+        <p>录入名单 → 一键随机分组 → 生成二维码与分组海报分享给球友。支持种子选手分散、手动微调、分组还原与本地保存，纯前端无后端。</p>
+      </a>
     </section>
   </main>
 
